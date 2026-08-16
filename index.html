@@ -216,21 +216,38 @@ h1,h2,h3{ font-family: var(--font-display); margin: 0; }
 .square.in-check{ background: var(--square-check) !important; }
 
 .piece{
-  font-size: calc(var(--board-size) / 9.2);
-  line-height: 1; cursor: pointer; position: relative; z-index: 2;
+  width: 78%; height: 78%;
+  cursor: pointer; position: relative; z-index: 2;
   transition: transform .12s ease;
+  display:flex; align-items:center; justify-content:center;
 }
-.piece.white{ color: var(--piece-white-fill);
-  -webkit-text-stroke: 1.4px var(--piece-white-stroke);
+.piece svg{ width:100%; height:100%; overflow: visible; display:block;
   filter: drop-shadow(0 2px 2px rgba(0,0,0,.4));
 }
-.piece.black{ color: var(--piece-black-fill);
-  -webkit-text-stroke: 1.4px var(--piece-black-stroke);
-  filter: drop-shadow(0 2px 2px rgba(0,0,0,.35));
+.piece.white svg path, .piece.white svg polygon, .piece.white svg rect,
+.piece.white svg circle, .piece.white svg ellipse, .piece.white svg line{
+  fill: var(--piece-white-fill); stroke: var(--piece-white-stroke);
+  stroke-width: 2.6; stroke-linejoin: round; stroke-linecap: round;
 }
+.piece.black svg path, .piece.black svg polygon, .piece.black svg rect,
+.piece.black svg circle, .piece.black svg ellipse, .piece.black svg line{
+  fill: var(--piece-black-fill); stroke: var(--piece-black-stroke);
+  stroke-width: 2.2; stroke-linejoin: round; stroke-linecap: round;
+}
+.piece svg .eyecut{ stroke: none !important; }
+.piece.white svg .eyecut{ fill: var(--piece-white-stroke) !important; }
+.piece.black svg .eyecut{ fill: var(--piece-black-stroke) !important; }
 .square.selected .piece{ transform: scale(1.06); }
-.piece.moving{ animation: pop .15s ease; }
-@keyframes pop{ from{ transform: scale(1.22); } to{ transform: scale(1); } }
+.piece.moving{ animation: pop .18s ease; }
+@keyframes pop{ from{ transform: scale(1.26); } to{ transform: scale(1); } }
+
+.move-arrow-overlay{ position:absolute; inset:0; width:100%; height:100%; pointer-events:none; z-index:6; }
+.move-arrow-overlay .arrow-fill{ fill: var(--accent); }
+.move-arrow-overlay .arrow-line{
+  stroke: var(--accent); stroke-width: 1.4; stroke-linecap: round;
+  opacity: 0; transition: opacity .15s ease;
+  filter: drop-shadow(0 1px 1px rgba(0,0,0,.4));
+}
 
 .board-controls{ display:flex; gap:8px; flex-wrap: wrap; justify-content:center; max-width: var(--board-size); }
 .btn{
@@ -386,6 +403,14 @@ footer.credit{ text-align:center; font-size: 11px; color: var(--text-dim); paddi
 
     <div class="board-wrap">
       <div class="board" id="board" role="grid" aria-label="Chess board"></div>
+      <svg class="move-arrow-overlay" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+        <defs>
+          <marker id="arrowhead" viewBox="0 0 10 10" refX="5.5" refY="5" markerWidth="3.4" markerHeight="3.4" orient="auto-start-reverse">
+            <path class="arrow-fill" d="M0,0 L10,5 L0,10 Z"></path>
+          </marker>
+        </defs>
+        <line id="moveArrowLine" class="arrow-line" x1="0" y1="0" x2="0" y2="0" marker-end="url(#arrowhead)"></line>
+      </svg>
     </div>
 
     <div class="clock-row" id="clockBottom" data-color="w">
@@ -894,13 +919,29 @@ function chooseAIMove(state, elo) {
 /* ============================================================
    UI / APPLICATION LAYER
    ============================================================ */
-const GLYPH = {
-  wK:'\u2654', wQ:'\u2655', wR:'\u2656', wB:'\u2657', wN:'\u2658', wP:'\u2659',
-  bK:'\u265A', bQ:'\u265B', bR:'\u265C', bB:'\u265D', bN:'\u265E', bP:'\u265F'
+// Original, simplified geometric piece set (own design, not copied artwork).
+// Each shape is drawn in a 0-100 viewBox and colored purely via CSS fill/stroke
+// (see .piece.white/.black), so it reads clearly in every theme at any size.
+const PIECE_SVG = {
+  P: `<circle cx="50" cy="30" r="13"/><polygon points="39,42 61,42 71,80 29,80"/>`,
+  R: `<rect x="24" y="18" width="10" height="18"/><rect x="45" y="18" width="10" height="18"/>
+      <rect x="66" y="18" width="10" height="18"/><rect x="22" y="34" width="56" height="9"/>
+      <polygon points="30,43 70,43 74,80 26,80"/>`,
+  B: `<circle cx="50" cy="15" r="6"/><rect x="47" y="20" width="6" height="7"/>
+      <ellipse cx="50" cy="55" rx="21" ry="26"/><polygon points="27,78 73,78 78,80 22,80"/>
+      <line x1="39" y1="30" x2="58" y2="44" stroke-width="4"/>`,
+  N: `<path d="M20,54 C21.5,47 24.3,41 28.7,37 C30.1,29 34.5,22 41,20
+      L50.4,3 L47.5,19 C58.3,12 69.9,20 75.7,35 C80,45 80,53 76.4,57
+      L76.4,80 L28.7,80 C28.7,74 28,70 25.8,66 L30.1,63
+      C25.1,60 21.5,58 20,54 Z"/>
+      <circle class="eyecut" cx="40" cy="30" r="3.2"/>`,
+  Q: `<circle cx="22" cy="24" r="5"/><circle cx="38" cy="14" r="5"/><circle cx="50" cy="10" r="5.5"/>
+      <circle cx="62" cy="14" r="5"/><circle cx="78" cy="24" r="5"/>
+      <polygon points="22,28 78,28 71,52 29,52"/><polygon points="27,54 73,54 79,80 21,80"/>`,
+  K: `<rect x="47" y="6" width="6" height="16"/><rect x="40" y="11" width="20" height="6"/>
+      <circle cx="50" cy="27" r="6"/><polygon points="28,34 72,34 72,46 28,46"/>
+      <polygon points="30,48 70,48 77,80 23,80"/>`,
 };
-// White pieces use the hollow/outline glyph set, black pieces the solid glyph set —
-// each is then themed via CSS fill + stroke (see .piece.white/.black) so both read
-// clearly as their color on every board theme.
 
 const boardEl = document.getElementById('board');
 const statusBar = document.getElementById('statusBar');
@@ -1019,11 +1060,48 @@ function renderBoard() {
       if (piece) {
         const span = document.createElement('span');
         span.className = 'piece ' + (piece.c === 'w' ? 'white' : 'black');
-        span.textContent = GLYPH[piece.c + piece.t];
+        span.innerHTML = '<svg viewBox="0 0 100 100">' + PIECE_SVG[piece.t] + '</svg>';
         el.appendChild(span);
       }
       el.onclick = () => handleSquareClick(r, c);
     }
+  }
+  renderMoveArrow();
+}
+
+// Maps a board square to its percentage position (0-100) within the board,
+// accounting for the current flip orientation — used to draw the last-move arrow.
+function squareCenterPercent(r, c) {
+  const rr = app.flipped ? 7 - r : r;
+  const cc = app.flipped ? 7 - c : c;
+  return { x: (cc + 0.5) / 8 * 100, y: (rr + 0.5) / 8 * 100 };
+}
+function renderMoveArrow() {
+  const line = document.getElementById('moveArrowLine');
+  if (!line) return;
+  if (!app.lastMove) { line.style.opacity = 0; return; }
+  const from = squareCenterPercent(app.lastMove.from.r, app.lastMove.from.c);
+  const to = squareCenterPercent(app.lastMove.to.r, app.lastMove.to.c);
+  const dx = to.x - from.x, dy = to.y - from.y;
+  const dist = Math.hypot(dx, dy) || 1;
+  const pullBack = 5; // percent units, so the arrowhead doesn't sit under the piece
+  const tx = to.x - (dx / dist) * pullBack;
+  const ty = to.y - (dy / dist) * pullBack;
+  line.setAttribute('x1', from.x); line.setAttribute('y1', from.y);
+  line.setAttribute('x2', tx); line.setAttribute('y2', ty);
+  line.style.opacity = 0.9;
+}
+
+// Briefly pops the piece that just landed on a square, so a move — especially
+// the computer's — is easy to spot at a glance.
+function animateMovedPiece(move) {
+  const idx = squareIndexFromRC(move.to.r, move.to.c, app.flipped);
+  const el = boardEl.children[idx];
+  const pieceEl = el && el.querySelector('.piece');
+  if (pieceEl) {
+    pieceEl.classList.remove('moving');
+    void pieceEl.offsetWidth; // restart the animation
+    pieceEl.classList.add('moving');
   }
 }
 
@@ -1047,8 +1125,8 @@ function handleSquareClick(r, c) {
         openPromoModal();
         return;
       }
-      commitMove(move);
       app.selected = null; app.legalForSelected = [];
+      commitMove(move);
       return;
     }
     if (piece && piece.c === app.state.turn) {
@@ -1083,7 +1161,8 @@ document.getElementById('promoChoices').addEventListener('click', (e) => {
   if (move) commitMove(move);
 });
 
-function commitMove(move) {
+function commitMove(move, opts) {
+  opts = opts || {};
   const san = sanForMove(app.state, move);
   const mover = app.state.turn;
   const captured = move.capture;
@@ -1099,6 +1178,8 @@ function commitMove(move) {
   renderBoard();
   renderMoves();
   renderStatus();
+  animateMovedPiece(move);
+  if (opts.byAI) announceAIMove(san, mover);
 
   const inCheck = isKingInCheck(app.state, app.state.turn);
   if (inCheck) soundCheck(); else if (captured) soundCapture(); else soundMove();
@@ -1124,9 +1205,16 @@ function scheduleAIMove() {
       const elo = app.mode === 'adaptive' ? Math.round(stats.elo) : app.aiElo;
       const move = chooseAIMove(app.state, elo);
       thinkingBadge.classList.remove('on');
-      if (move) commitMove(move);
+      if (move) commitMove(move, { byAI: true });
     }, 30);
-  }, 320);
+  }, 450);
+}
+
+// Overrides the status line right after the computer moves, so it's obvious
+// what it just played instead of the board just silently changing.
+function announceAIMove(san, mover) {
+  const moveLabel = (mover === 'w' ? 'White' : 'Black') + ' (computer) played ' + san;
+  statusBar.textContent = moveLabel + ' — your move';
 }
 
 function renderStatus() {
@@ -1362,7 +1450,8 @@ function startNewGame() {
   renderStatus();
   renderClocks();
 
-  if (app.clock.enabled) restartClockTimer();
+  // Clocks stay frozen at their starting time until the first move is made —
+  // commitMove() starts the timer once that happens, not here.
 
   if (app.mode !== '2p' && app.humanColor === 'b') {
     scheduleAIMove();
