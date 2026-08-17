@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="wood">
+<html lang="en" data-theme="minimal">
 <head>
 <meta charset="UTF-8">
 <title>64 Squares — Chess</title>
@@ -131,17 +131,25 @@ h1,h2,h3{ font-family: var(--font-display); margin: 0; }
    LAYOUT
    ============================================================ */
 .topbar{
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 14px 18px; padding-top: calc(14px + env(safe-area-inset-top));
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 12px 16px; padding-top: calc(12px + env(safe-area-inset-top));
   border-bottom: 1px solid var(--panel-border);
   background: var(--panel);
   position: sticky; top: 0; z-index: 20;
+  flex-wrap: wrap;
 }
-.brand{ display:flex; align-items:center; gap:10px; }
-.brand .mark{ font-size: 26px; line-height:1; color: var(--accent); filter: drop-shadow(0 0 6px color-mix(in srgb, var(--accent) 60%, transparent)); }
-.brand h1{ font-size: 19px; letter-spacing: 0.02em; }
-.brand .sub{ font-size: 10.5px; color: var(--text-dim); letter-spacing: 0.14em; text-transform: uppercase; margin-top: 1px; }
-.topbar-actions{ display:flex; gap:8px; align-items:center; }
+.brand{ display:flex; align-items:center; gap:10px; flex: 0 0 auto; order: 1; }
+.brand .mark{ font-size: 24px; line-height:1; color: var(--accent);
+  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--accent) 60%, transparent)); }
+.brand h1{ font-size: 18px; letter-spacing: 0.02em; }
+.topbar-actions{ display:flex; gap:8px; align-items:center; flex: 0 0 auto; order: 2; }
+/* Mobile: nav gets its own full-width row under the title, since there usually
+   isn't room to share a line with the title and the icon buttons. */
+.main-nav{ order: 3; flex-basis: 100%; flex-grow: 0; }
+@media (min-width: 700px){
+  .topbar-actions{ order: 3; }
+  .main-nav{ order: 2; flex-basis: 0; flex-grow: 1; }
+}
 
 .iconbtn{
   border: 1px solid var(--panel-border); background: var(--panel-2); color: var(--text);
@@ -222,24 +230,55 @@ h1,h2,h3{ font-family: var(--font-display); margin: 0; }
   display:flex; align-items:center; justify-content:center;
 }
 .piece svg{ width:100%; height:100%; overflow: visible; display:block;
-  filter: drop-shadow(0 2px 2px rgba(0,0,0,.4));
+  filter: drop-shadow(0 2px 2px rgba(0,0,0,.38));
 }
+/* White pieces need a firm, deliberately heavier outline — their light fill has
+   almost no contrast against light squares on its own, so the stroke is what
+   actually defines the shape there. Black pieces already contrast everywhere,
+   so a lighter stroke is enough to keep edges crisp on dark squares. */
 .piece.white svg path, .piece.white svg polygon, .piece.white svg rect,
 .piece.white svg circle, .piece.white svg ellipse, .piece.white svg line{
   fill: var(--piece-white-fill); stroke: var(--piece-white-stroke);
-  stroke-width: 2.6; stroke-linejoin: round; stroke-linecap: round;
+  stroke-width: 3; stroke-linejoin: round; stroke-linecap: round;
 }
 .piece.black svg path, .piece.black svg polygon, .piece.black svg rect,
 .piece.black svg circle, .piece.black svg ellipse, .piece.black svg line{
   fill: var(--piece-black-fill); stroke: var(--piece-black-stroke);
-  stroke-width: 2.2; stroke-linejoin: round; stroke-linecap: round;
+  stroke-width: 2; stroke-linejoin: round; stroke-linecap: round;
 }
 .piece svg .eyecut{ stroke: none !important; }
 .piece.white svg .eyecut{ fill: var(--piece-white-stroke) !important; }
 .piece.black svg .eyecut{ fill: var(--piece-black-stroke) !important; }
+.piece svg .crack{ fill: none !important; stroke: var(--danger) !important; stroke-width: 3.4; }
 .square.selected .piece{ transform: scale(1.06); }
 .piece.moving{ animation: pop .18s ease; }
 @keyframes pop{ from{ transform: scale(1.26); } to{ transform: scale(1); } }
+
+/* The knight uses the same glyph treatment as the header brand mark — a solid
+   character recolored per side, with a soft directional "halo" standing in for
+   a stroke. White gets a firmer halo than black for the same reason the SVG
+   pieces do: light fill has very little contrast on light squares on its own. */
+.piece.glyph-piece{ font-size: calc(var(--board-size) / 10); line-height: 1; }
+.piece.glyph-piece.white{
+  color: var(--piece-white-fill);
+  filter:
+    drop-shadow(1.5px 0 0 var(--piece-white-stroke))
+    drop-shadow(-1.5px 0 0 var(--piece-white-stroke))
+    drop-shadow(0 1.5px 0 var(--piece-white-stroke))
+    drop-shadow(0 -1.5px 0 var(--piece-white-stroke))
+    drop-shadow(0 2px 2px rgba(0,0,0,.35));
+}
+.piece.glyph-piece.black{
+  color: var(--piece-black-fill);
+  filter:
+    drop-shadow(1px 0 0 var(--piece-black-stroke))
+    drop-shadow(-1px 0 0 var(--piece-black-stroke))
+    drop-shadow(0 1px 0 var(--piece-black-stroke))
+    drop-shadow(0 -1px 0 var(--piece-black-stroke))
+    drop-shadow(0 2px 2px rgba(0,0,0,.3));
+}
+.dsquare .piece.glyph-piece{ font-size: 9.6cqw; }
+.lesson-piece-icon.glyph-piece{ width:auto !important; height:auto !important; font-size: 34px; }
 
 .move-arrow-overlay{ position:absolute; inset:0; width:100%; height:100%; pointer-events:none; z-index:6; }
 .move-arrow-overlay .arrow-fill{ fill: var(--accent); }
@@ -373,24 +412,94 @@ textarea#pgnBox{
 }
 
 footer.credit{ text-align:center; font-size: 11px; color: var(--text-dim); padding: 10px 0 26px; opacity:.7; }
+footer.credit .copyright{ margin-top: 4px; letter-spacing: .03em; }
+
+/* ============================================================
+   NAVIGATION + SCREENS
+   ============================================================ */
+.main-nav{
+  display:flex; gap:6px; overflow-x:auto; justify-content:center; min-width: 0;
+}
+.nav-btn{
+  flex: 0 0 auto; padding: 8px 14px; border-radius: 999px;
+  border: 1px solid var(--panel-border); background: var(--panel-2); color: var(--text-dim);
+  font-weight: 700; font-size: 12.5px; cursor: pointer; white-space: nowrap;
+}
+.nav-btn.active{ background: var(--accent); color: var(--bg); border-color: var(--accent); }
+.screen{ display:none; }
+.screen.active{ display:block; }
+
+/* ============================================================
+   LESSON SCREENS (Piece Moves / Tactics)
+   ============================================================ */
+.lesson-wrap{ max-width: 920px; margin: 0 auto; padding: 20px 18px 40px; }
+.lesson-intro{ margin-bottom: 22px; }
+.lesson-intro h1{ font-size: 24px; margin-bottom: 6px; }
+.lesson-intro p{ color: var(--text-dim); font-size: 14px; line-height: 1.6; max-width: 640px; }
+
+.lesson-card{
+  background: var(--panel); border: 1px solid var(--panel-border); border-radius: var(--radius-lg);
+  padding: 20px; margin-bottom: 18px;
+}
+.lesson-card-head{ display:flex; align-items:center; gap: 14px; margin-bottom: 10px; }
+.lesson-piece-icon{ width: 42px !important; height: 42px !important; flex: 0 0 auto; cursor: default; }
+.lesson-card-head h2{ font-size: 19px; }
+.lesson-meta{ font-size: 12px; color: var(--text-dim); margin-top: 2px; letter-spacing: .02em; }
+.lesson-text{ font-size: 14px; line-height: 1.65; color: var(--text); margin: 8px 0 16px; }
+.lesson-text strong{ color: var(--accent-2, var(--accent)); }
+
+.lesson-diagrams{
+  display:grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; margin: 14px 0;
+}
+.diagram-block{ text-align:center; }
+.diagram-caption{ font-size: 12px; font-weight:700; color: var(--text-dim); margin-top: 8px; letter-spacing:.02em; }
+.diagram-note{ font-size: 11.5px; color: var(--text-dim); margin-top: 3px; line-height:1.4; }
+
+.diagram-wrap{ position:relative; width:100%; max-width: 220px; margin: 0 auto; }
+.diagram-board{
+  display:grid; grid-template-columns: repeat(8,1fr); grid-template-rows: repeat(8,1fr);
+  aspect-ratio: 1; width:100%; border: 2px solid var(--board-border); border-radius: 8px;
+  overflow: hidden; container-type: inline-size;
+}
+.dsquare .piece{ cursor: default; }
+
+.lesson-tips{ list-style:none; margin: 14px 0 0; padding: 12px 14px; background: var(--panel-2);
+  border-radius: var(--radius-sm); border: 1px solid var(--panel-border); }
+.lesson-tips li{ font-size: 13px; color: var(--text-dim); line-height: 1.55; padding: 3px 0; }
+.lesson-tips li::before{ content: "♟"; color: var(--accent); margin-right: 8px; }
+
+.lesson-tip-box{
+  margin-top: 14px; padding: 12px 14px; background: var(--panel-2); border-left: 3px solid var(--accent);
+  border-radius: var(--radius-sm); font-size: 13px; color: var(--text-dim); line-height: 1.55;
+}
+.lesson-tip-box strong{ color: var(--text); }
+
+.lesson-badge{
+  display:inline-block; font-size: 10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.08em;
+  color: var(--accent); border: 1px solid var(--panel-border); padding: 3px 9px; border-radius: 999px;
+  margin-bottom: 10px;
+}
 </style>
 </head>
 <body>
 
 <header class="topbar">
   <div class="brand">
-    <span class="mark">♞</span>
-    <div>
-      <h1>64 Squares</h1>
-      <div class="sub">Chess, distilled</div>
-    </div>
+    <span class="mark" id="brandMark">♞</span>
+    <h1>64 Squares</h1>
   </div>
+  <nav class="main-nav" id="mainNav">
+    <button class="nav-btn active" data-screen="play">Play</button>
+    <button class="nav-btn" data-screen="moves">Learn</button>
+    <button class="nav-btn" data-screen="tactics">Tactics</button>
+  </nav>
   <div class="topbar-actions">
     <button class="iconbtn" id="soundToggle" title="Toggle sound" aria-label="Toggle sound">🔊</button>
     <button class="iconbtn" id="newGameTop" title="New game" aria-label="New game">⟲</button>
   </div>
 </header>
 
+<section id="screen-play" class="screen active">
 <div class="layout">
   <section class="board-panel">
     <div class="status-bar" id="statusBar">White to move</div>
@@ -431,9 +540,9 @@ footer.credit{ text-align:center; font-size: 11px; color: var(--text-dim); paddi
     <div class="card">
       <h2>Game Setup</h2>
       <div class="segmented" id="modeSelector">
-        <button data-mode="2p" class="active">Two Player</button>
+        <button data-mode="2p">Two Player</button>
         <button data-mode="fixed">Vs Computer</button>
-        <button data-mode="adaptive">Adaptive AI</button>
+        <button data-mode="adaptive" class="active">Adaptive AI</button>
       </div>
 
       <div class="field" id="eloField" style="display:none;">
@@ -442,7 +551,7 @@ footer.credit{ text-align:center; font-size: 11px; color: var(--text-dim); paddi
         <div class="help-text" id="eloHelp">800 = beginner, frequent mistakes. 2400 = near-master, deep calculation.</div>
       </div>
 
-      <div class="field" id="colorField" style="display:none;">
+      <div class="field" id="colorField">
         <label>Play as</label>
         <select id="colorSelect">
           <option value="w">White</option>
@@ -500,8 +609,19 @@ footer.credit{ text-align:center; font-size: 11px; color: var(--text-dim); paddi
     </div>
   </aside>
 </div>
+</section>
 
-<footer class="credit">64 Squares — plays entirely in your browser. No accounts, no servers, no ads.</footer>
+<section id="screen-moves" class="screen">
+  <div class="lesson-wrap" id="movesContent"></div>
+</section>
+
+<section id="screen-tactics" class="screen">
+  <div class="lesson-wrap" id="tacticsContent"></div>
+</section>
+
+<footer class="credit">
+  <div class="copyright">© 2026 Data Horse</div>
+</footer>
 
 <!-- Promotion modal -->
 <div class="modal-overlay" id="promoModal">
@@ -919,22 +1039,18 @@ function chooseAIMove(state, elo) {
 /* ============================================================
    UI / APPLICATION LAYER
    ============================================================ */
-// Original, simplified geometric piece set (own design, not copied artwork).
-// Each shape is drawn in a 0-100 viewBox and colored purely via CSS fill/stroke
-// (see .piece.white/.black), so it reads clearly in every theme at any size.
+// Original, hand-designed piece set (not copied artwork) — same knight silhouette
+// used for the header brand mark. Drawn in a shared 0-100 viewBox so every piece
+// sits on a consistent baseline; colored purely via CSS fill/stroke (see
+// .piece.white/.black), so it stays crisp on both light and dark squares.
 const PIECE_SVG = {
   P: `<circle cx="50" cy="30" r="13"/><polygon points="39,42 61,42 71,80 29,80"/>`,
-  R: `<rect x="24" y="18" width="10" height="18"/><rect x="45" y="18" width="10" height="18"/>
-      <rect x="66" y="18" width="10" height="18"/><rect x="22" y="34" width="56" height="9"/>
-      <polygon points="30,43 70,43 74,80 26,80"/>`,
+  R: `<rect x="24" y="16" width="10" height="18"/><rect x="45" y="16" width="10" height="18"/>
+      <rect x="66" y="16" width="10" height="18"/><rect x="22" y="32" width="56" height="9"/>
+      <polygon points="30,41 70,41 74,80 26,80"/>`,
   B: `<circle cx="50" cy="15" r="6"/><rect x="47" y="20" width="6" height="7"/>
       <ellipse cx="50" cy="55" rx="21" ry="26"/><polygon points="27,78 73,78 78,80 22,80"/>
       <line x1="39" y1="30" x2="58" y2="44" stroke-width="4"/>`,
-  N: `<path d="M20,54 C21.5,47 24.3,41 28.7,37 C30.1,29 34.5,22 41,20
-      L50.4,3 L47.5,19 C58.3,12 69.9,20 75.7,35 C80,45 80,53 76.4,57
-      L76.4,80 L28.7,80 C28.7,74 28,70 25.8,66 L30.1,63
-      C25.1,60 21.5,58 20,54 Z"/>
-      <circle class="eyecut" cx="40" cy="30" r="3.2"/>`,
   Q: `<circle cx="22" cy="24" r="5"/><circle cx="38" cy="14" r="5"/><circle cx="50" cy="10" r="5.5"/>
       <circle cx="62" cy="14" r="5"/><circle cx="78" cy="24" r="5"/>
       <polygon points="22,28 78,28 71,52 29,52"/><polygon points="27,54 73,54 79,80 21,80"/>`,
@@ -942,6 +1058,34 @@ const PIECE_SVG = {
       <circle cx="50" cy="27" r="6"/><polygon points="28,34 72,34 72,46 28,46"/>
       <polygon points="30,48 70,48 77,80 23,80"/>`,
 };
+// The knight uses the same chess-glyph artwork as the brand mark in the header —
+// a single solid character, recolored per side — instead of the hand-drawn SVG
+// used for the other five piece types (see .piece.glyph-piece in the CSS).
+const KNIGHT_GLYPH = '\u265E';
+// Fills a piece <span> with the right visual for its type: the shared SVG shape
+// for everything except the knight, which gets the glyph treatment instead.
+function setPieceContent(span, type) {
+  if (type === 'N') {
+    span.classList.add('glyph-piece');
+    span.textContent = KNIGHT_GLYPH;
+  } else {
+    span.innerHTML = '<svg viewBox="0 0 100 100">' + PIECE_SVG[type] + '</svg>';
+  }
+}
+// A shattered version of the king, shown in place of the normal king on the
+// square where checkmate is actually delivered.
+const BROKEN_KING_SVG = `
+  <g transform="rotate(-9 50 40) translate(-5,-3)">
+    <rect x="47" y="6" width="6" height="16"/><rect x="40" y="11" width="20" height="6"/>
+    <circle cx="50" cy="27" r="6"/><polygon points="28,34 72,34 72,46 28,46"/>
+  </g>
+  <g transform="rotate(8 50 64) translate(5,4)">
+    <polygon points="30,48 70,48 77,80 23,80"/>
+  </g>
+  <polygon points="14,74 22,67 20,80"/>
+  <polygon points="86,72 79,65 82,80"/>
+  <path class="crack" d="M26,46 L35,53 L29,59 L41,55 L36,65 L49,57 L44,68 L66,58" fill="none"/>
+`;
 
 const boardEl = document.getElementById('board');
 const statusBar = document.getElementById('statusBar');
@@ -962,7 +1106,7 @@ let app = {
   selected: null,       // {r,c}
   legalForSelected: [],
   lastMove: null,
-  mode: '2p',           // '2p' | 'fixed' | 'adaptive'
+  mode: 'adaptive',     // '2p' | 'fixed' | 'adaptive'
   humanColor: 'w',
   aiElo: 1200,
   flipped: false,
@@ -970,6 +1114,7 @@ let app = {
   soundOn: true,
   gameOver: false,
   pendingPromotion: null, // {from,to,color,candidates:[moves]}
+  brokenKing: null,       // {r,c} of a checkmated king, rendered shattered
 };
 
 /* ---------- Persistent stats ---------- */
@@ -1059,8 +1204,10 @@ function renderBoard() {
       const piece = app.state.board[r][c];
       if (piece) {
         const span = document.createElement('span');
-        span.className = 'piece ' + (piece.c === 'w' ? 'white' : 'black');
-        span.innerHTML = '<svg viewBox="0 0 100 100">' + PIECE_SVG[piece.t] + '</svg>';
+        const isBroken = app.brokenKing && app.brokenKing.r === r && app.brokenKing.c === c;
+        span.className = 'piece ' + (piece.c === 'w' ? 'white' : 'black') + (isBroken ? ' broken' : '');
+        if (isBroken) span.innerHTML = '<svg viewBox="0 0 100 100">' + BROKEN_KING_SVG + '</svg>';
+        else setPieceContent(span, piece.t);
         el.appendChild(span);
       }
       el.onclick = () => handleSquareClick(r, c);
@@ -1335,7 +1482,13 @@ function endGame(status) {
   stopClockTimer();
   let title = '', desc = '', winner = null, isDraw = false;
 
-  if (status.status === 'checkmate') { winner = status.winner; title = 'Checkmate'; desc = (winner === 'w' ? 'White' : 'Black') + ' wins by checkmate.'; }
+  if (status.status === 'checkmate') {
+    winner = status.winner;
+    title = 'Checkmate'; desc = (winner === 'w' ? 'White' : 'Black') + ' wins by checkmate.';
+    const checkmatedColor = opponent(winner);
+    const kingPos = findKing(app.state.board, checkmatedColor);
+    if (kingPos) { app.brokenKing = { r: kingPos.r, c: kingPos.c }; renderBoard(); }
+  }
   else if (status.status === 'stalemate') { isDraw = true; title = 'Stalemate'; desc = 'The game is drawn — the player to move has no legal moves.'; }
   else if (status.status === 'draw-50move') { isDraw = true; title = 'Draw'; desc = 'Drawn by the 50-move rule.'; }
   else if (status.status === 'draw-material') { isDraw = true; title = 'Draw'; desc = 'Drawn by insufficient mating material.'; }
@@ -1431,6 +1584,7 @@ function startNewGame() {
   app.lastMove = null;
   app.gameOver = false;
   app.pendingPromotion = null;
+  app.brokenKing = null;
   app.lastResult = null;
 
   const clockVal = document.getElementById('clockSelect').value;
@@ -1538,10 +1692,340 @@ document.getElementById('themeSwatches').addEventListener('click', (e) => {
   applyTheme(sw.dataset.theme);
 });
 
+/* ============================================================
+   LEARNING CONTENT — Piece Moves & Tactics
+   Diagrams reuse the real rules engine (legalMovesForSquare) so every
+   highlighted square is verified-correct, not hand-guessed.
+   ============================================================ */
+function sq(alg) { return { r: 8 - parseInt(alg[1], 10), c: alg.charCodeAt(0) - 97 }; }
+function P_(at, t, color) { const { r, c } = sq(at); return { r, c, t, color }; }
+function arrowSq(from, to) { return { from: sq(from), to: sq(to) }; }
+function makeLessonState(pieceList, opts) {
+  opts = opts || {};
+  const board = new Array(8).fill(null).map(() => new Array(8).fill(null));
+  pieceList.forEach(p => { board[p.r][p.c] = { t: p.t, c: p.color }; });
+  return {
+    board, turn: opts.turn || 'w',
+    castling: opts.castling || { wK: false, wQ: false, bK: false, bQ: false },
+    enPassant: opts.enPassant || null,
+    halfmoveClock: 0, fullmoveNumber: 1,
+  };
+}
+function targetsFrom(moves) {
+  const seen = {}; const out = [];
+  moves.forEach(m => { const k = m.to.r + ',' + m.to.c; if (!seen[k]) { seen[k] = true; out.push({ r: m.to.r, c: m.to.c, capture: !!m.capture }); } });
+  return out;
+}
+// Builds a verified diagram: places the subject piece + any extra pieces, then asks
+// the real engine which squares are legally reachable.
+function movesDiagram(pieceAt, type, color, extraPieces, opts) {
+  extraPieces = extraPieces || [];
+  opts = opts || {};
+  const allPieces = [P_(pieceAt, type, color)].concat(extraPieces);
+  const state = makeLessonState(allPieces, opts);
+  const { r, c } = sq(pieceAt);
+  let moves = legalMovesForSquare(state, r, c);
+  if (opts.onlyCastle) moves = moves.filter(m => m.castle);
+  return { pieces: allPieces, targets: targetsFrom(moves) };
+}
+
+let diagramIdCounter = 0;
+// Renders one static, non-interactive board diagram: pieces + optional legal-move
+// dots + optional arrows. Reuses the same .square/.piece CSS as the live board so
+// diagrams always match the current theme.
+function createDiagram(config) {
+  diagramIdCounter++;
+  const markerId = 'diagArrow' + diagramIdCounter;
+  const wrap = document.createElement('div');
+  wrap.className = 'diagram-wrap';
+  const grid = document.createElement('div');
+  grid.className = 'diagram-board';
+  for (let r = 0; r < 8; r++) {
+    for (let c = 0; c < 8; c++) {
+      const sqEl = document.createElement('div');
+      let cls = 'square dsquare ' + (((r + c) % 2 === 0) ? 'light' : 'dark');
+      const t = config.targets && config.targets.find(x => x.r === r && x.c === c);
+      if (t) cls += t.capture ? ' legal-capture' : ' legal-move';
+      const hi = config.highlightSquares && config.highlightSquares.find(x => x.r === r && x.c === c);
+      if (hi) cls += ' in-check';
+      sqEl.className = cls;
+      const p = config.pieces.find(x => x.r === r && x.c === c);
+      if (p) {
+        const span = document.createElement('span');
+        span.className = 'piece ' + (p.color === 'w' ? 'white' : 'black');
+        setPieceContent(span, p.t);
+        sqEl.appendChild(span);
+      }
+      grid.appendChild(sqEl);
+    }
+  }
+  wrap.appendChild(grid);
+  if (config.arrows && config.arrows.length) {
+    const svgNS = 'http://www.w3.org/2000/svg';
+    const svg = document.createElementNS(svgNS, 'svg');
+    svg.setAttribute('viewBox', '0 0 100 100');
+    svg.setAttribute('preserveAspectRatio', 'none');
+    svg.classList.add('move-arrow-overlay');
+    const defs = document.createElementNS(svgNS, 'defs');
+    const marker = document.createElementNS(svgNS, 'marker');
+    marker.setAttribute('id', markerId);
+    marker.setAttribute('viewBox', '0 0 10 10'); marker.setAttribute('refX', '5.5'); marker.setAttribute('refY', '5');
+    marker.setAttribute('markerWidth', '3.6'); marker.setAttribute('markerHeight', '3.6'); marker.setAttribute('orient', 'auto-start-reverse');
+    const arrowPath = document.createElementNS(svgNS, 'path');
+    arrowPath.setAttribute('d', 'M0,0 L10,5 L0,10 Z'); arrowPath.setAttribute('class', 'arrow-fill');
+    marker.appendChild(arrowPath); defs.appendChild(marker); svg.appendChild(defs);
+    config.arrows.forEach(a => {
+      const from = { x: (a.from.c + 0.5) / 8 * 100, y: (a.from.r + 0.5) / 8 * 100 };
+      const to = { x: (a.to.c + 0.5) / 8 * 100, y: (a.to.r + 0.5) / 8 * 100 };
+      const dx = to.x - from.x, dy = to.y - from.y, dist = Math.hypot(dx, dy) || 1, pull = 6;
+      const tx = to.x - (dx / dist) * pull, ty = to.y - (dy / dist) * pull;
+      const line = document.createElementNS(svgNS, 'line');
+      line.setAttribute('x1', from.x); line.setAttribute('y1', from.y);
+      line.setAttribute('x2', tx); line.setAttribute('y2', ty);
+      line.setAttribute('class', 'arrow-line');
+      line.style.opacity = 0.9;
+      line.setAttribute('marker-end', 'url(#' + markerId + ')');
+      svg.appendChild(line);
+    });
+    wrap.appendChild(svg);
+  }
+  return wrap;
+}
+
+/* ---------- Piece Moves lesson data ---------- */
+const PIECE_LESSONS = [
+  {
+    type: 'P', name: 'Pawn', meta: 'Worth 1 point · 8 per side',
+    text: "Pawns are the foot soldiers of the board — individually the weakest piece, but they set the shape of the entire game. A pawn always moves <strong>straight ahead</strong> and always <strong>captures diagonally</strong> — it's the only piece whose moving pattern and capturing pattern are different.",
+    diagrams: [
+      Object.assign(movesDiagram('e2', 'P', 'w'), { caption: 'Moving forward', note: 'On its very first move a pawn may go one or two squares. After that, one square at a time.' }),
+      Object.assign(movesDiagram('e4', 'P', 'w', [P_('d5', 'P', 'b'), P_('f5', 'P', 'b')]), { caption: 'Capturing diagonally', note: "A pawn can never capture the piece directly in front of it — only the two squares diagonally ahead." }),
+      Object.assign(movesDiagram('e7', 'P', 'w'), { caption: 'Promotion', note: 'Reach the far end of the board and your pawn instantly becomes a Queen, Rook, Bishop, or Knight — your choice.' }),
+      Object.assign(movesDiagram('e5', 'P', 'w', [P_('d5', 'P', 'b')], { enPassant: sq('d6') }), { caption: 'En passant', note: "If an enemy pawn rushes two squares past yours, you may capture it as though it had only moved one — but only on your very next move." }),
+    ],
+    tips: [
+      "Pawns can never move backward — every advance is permanent, so push them thoughtfully.",
+      "A pawn on its starting square is the only piece allowed a two-square first move.",
+      "Doubled, isolated, or backward pawns are long-term weaknesses — try to avoid creating them.",
+    ],
+  },
+  {
+    type: 'N', name: 'Knight', meta: 'Worth 3 points · 2 per side',
+    text: "The knight moves in an L-shape: two squares in one direction, then one square to the side. It's the only piece that can <strong>jump over</strong> everything in its path — friend or foe — which makes it dangerous in cramped positions where other pieces are stuck.",
+    diagrams: [
+      Object.assign(movesDiagram('d4', 'N', 'w'), { caption: 'The L-shaped jump', note: 'Up to 8 possible landing squares from the center of the board.' }),
+      Object.assign(movesDiagram('d4', 'N', 'w', ['c3', 'c4', 'c5', 'd3', 'd5', 'e3', 'e4', 'e5'].map(s => P_(s, 'P', 'w'))), { caption: 'Jumping over pieces', note: 'Completely boxed in by its own pawns — and the knight still has every one of its 8 moves.' }),
+    ],
+    tips: [
+      "A knight on the rim is dim — it covers far fewer squares in a corner than in the center.",
+      "Knights are the classic forking piece: their odd movement can attack two undefended pieces at once.",
+      "It takes a knight at least 2 moves to reach a square right next to where it started.",
+    ],
+  },
+  {
+    type: 'B', name: 'Bishop', meta: 'Worth 3 points · 2 per side',
+    text: "The bishop glides in a straight diagonal line, any distance, as long as nothing blocks its path. Every bishop starts on either a light or a dark square — and stays on that color <strong>for the entire game</strong>.",
+    diagrams: [
+      Object.assign(movesDiagram('d4', 'B', 'w'), { caption: 'Diagonal lines', note: 'Any distance in any of the 4 diagonal directions.' }),
+    ],
+    tips: [
+      "Because each bishop is stuck on one color, having both bishops (\"the bishop pair\") lets you control both colors of square.",
+      "Bishops are strongest on open diagonals — try not to lock them in behind your own pawns.",
+      "A fianchettoed bishop (developed to g2/g7 or b2/b7) aims straight down a long diagonal at the enemy king.",
+    ],
+  },
+  {
+    type: 'R', name: 'Rook', meta: 'Worth 5 points · 2 per side',
+    text: "The rook moves in a straight line along ranks (rows) and files (columns), any distance, as long as the path is clear. It starts the game boxed in behind pawns, but becomes one of the most powerful pieces once files open up.",
+    diagrams: [
+      Object.assign(movesDiagram('d4', 'R', 'w'), { caption: 'Ranks and files', note: 'Any distance, horizontally or vertically.' }),
+    ],
+    tips: [
+      "Rooks love open files (columns with no pawns on them) — they control the whole file from end to end.",
+      "A rook on the 7th rank (2nd rank for Black) can be devastating, attacking pawns and boxing in the enemy king.",
+      "Connect your rooks (clear the pieces between them on the back rank) so they defend each other.",
+    ],
+  },
+  {
+    type: 'Q', name: 'Queen', meta: 'Worth 9 points · 1 per side',
+    text: "The queen is simply a rook and a bishop combined — she can move any distance in a straight line horizontally, vertically, or diagonally. It's the most powerful piece on the board, so losing your queen for anything less than an equal trade is usually a serious mistake.",
+    diagrams: [
+      Object.assign(movesDiagram('d4', 'Q', 'w'), { caption: 'Rook + bishop combined', note: 'Up to 27 possible squares from the center of an empty board.' }),
+    ],
+    tips: [
+      "Avoid bringing your queen out too early — opponents can develop pieces while attacking it, gaining time.",
+      "Because she's so valuable, always double-check whether a square you're moving your queen to is defended.",
+      "A queen and a knight working together are especially good at delivering checkmate.",
+    ],
+  },
+  {
+    type: 'K', name: 'King', meta: 'Priceless · 1 per side',
+    text: "The king moves just one square in any direction — but he's the piece the entire game revolves around. Lose your king (get checkmated) and the game is over immediately, regardless of what's left on the board. Once per game, under the right conditions, the king may also make a special two-square move called <strong>castling</strong>.",
+    diagrams: [
+      Object.assign(movesDiagram('d4', 'K', 'w'), { caption: 'One square, any direction', note: 'Up to 8 adjacent squares — but never onto a square an enemy piece attacks.' }),
+      Object.assign(movesDiagram('e1', 'K', 'w', [P_('h1', 'R', 'w'), P_('a8', 'K', 'b')], { castling: { wK: true, wQ: false, bK: false, bQ: false }, onlyCastle: true }), { caption: 'Castling, kingside', note: "King and rook move together: king to g1, rook to f1 — as long as neither has moved and the squares between them are empty and safe." }),
+      Object.assign(movesDiagram('e1', 'K', 'w', [P_('a1', 'R', 'w'), P_('a8', 'K', 'b')], { castling: { wK: false, wQ: true, bK: false, bQ: false }, onlyCastle: true }), { caption: 'Castling, queenside', note: 'King to c1, rook to d1 — the same rules apply, just toward the other side.' }),
+    ],
+    tips: [
+      "Castle early — it tucks your king away safely and brings a rook into the game at the same time.",
+      "You can't castle out of check, through check, or into check — even if neither piece has moved.",
+      "In the endgame, an active king becomes a strong attacking piece — bring him toward the center once it's safe.",
+    ],
+  },
+];
+
+/* ---------- Tactics lesson data ---------- */
+const TACTIC_LESSONS = [
+  {
+    name: 'Fork', badge: 'Attacking idea',
+    text: "A <strong>fork</strong> is a single move that attacks two or more enemy pieces at the same time. The defender can only deal with one threat, so the other piece is lost. Knights are the most notorious forking piece — their unusual L-shaped move can reach two far-apart targets that no other piece could connect in one move.",
+    diagram: (() => {
+      const pieces = [P_('e5', 'N', 'w'), P_('g6', 'K', 'b'), P_('d7', 'Q', 'b'), P_('a1', 'K', 'w')];
+      return { pieces, arrows: [arrowSq('e5', 'g6'), arrowSq('e5', 'd7')] };
+    })(),
+    caption: "The knight on e5 attacks the king on g6 and the queen on d7 at the same time.",
+    spot: "Whenever two enemy pieces sit a \"knight's-move\" apart, check whether one of your knights can jump onto the square that attacks both.",
+  },
+  {
+    name: 'Pin', badge: 'Attacking idea',
+    text: "A <strong>pin</strong> immobilizes an enemy piece by threatening a more valuable piece standing directly behind it on the same rank, file, or diagonal. If the pinned piece moves, the piece behind it is captured — so it usually can't move at all.",
+    diagram: (() => {
+      const pieces = [P_('b5', 'B', 'w'), P_('c6', 'N', 'b'), P_('d7', 'K', 'b'), P_('h1', 'K', 'w')];
+      return { pieces, arrows: [arrowSq('b5', 'd7')], highlightSquares: [sq('c6')] };
+    })(),
+    caption: "The knight on c6 can't move — stepping aside would expose the king on d7 to the bishop.",
+    spot: "Look for three pieces lined up on the same line: your attacker, an enemy piece, and a bigger enemy piece directly behind it.",
+  },
+  {
+    name: 'Skewer', badge: 'Attacking idea',
+    text: "A <strong>skewer</strong> is a pin in reverse: the more valuable piece is in front and forced to move out of the attack, exposing the less valuable piece behind it to be captured. It's most common with rooks, bishops, and queens attacking along an open line.",
+    diagram: (() => {
+      const pieces = [P_('e1', 'R', 'w'), P_('e4', 'K', 'b'), P_('e8', 'R', 'b'), P_('a1', 'K', 'w')];
+      return { pieces, arrows: [arrowSq('e1', 'e8')] };
+    })(),
+    caption: "The king on e4 is in check and must move — once it does, the rook on e1 captures the rook on e8.",
+    spot: "Just like a pin, look for two enemy pieces lined up — but here the higher-value piece is the one closer to your attacker.",
+  },
+  {
+    name: 'Discovered Attack', badge: 'Attacking idea',
+    text: "A <strong>discovered attack</strong> happens when you move one piece out of the way and reveal an attack from a completely different piece standing behind it. It's especially strong because the piece that moves is free to do anything — capture, threaten, or even give check itself — while the revealed piece attacks too.",
+    diagram: (() => {
+      const pieces = [P_('c1', 'B', 'w'), P_('e3', 'N', 'w'), P_('h6', 'K', 'b'), P_('g2', 'K', 'w')];
+      return { pieces, arrows: [arrowSq('c1', 'h6')] };
+    })(),
+    caption: "The knight on e3 is blocking the bishop's diagonal — the moment it moves anywhere, it's check.",
+    spot: "Look for your own piece sitting on a line between one of your long-range pieces (bishop, rook, or queen) and an enemy target.",
+  },
+  {
+    name: 'Back-Rank Mate', badge: 'Checkmate pattern',
+    text: "A <strong>back-rank mate</strong> traps a king on its own first rank behind a wall of its own pawns that haven't moved. A rook or queen delivers checkmate along that rank because the king has nowhere to run — its own pawns block every escape square.",
+    diagram: (() => {
+      const pieces = [P_('g8', 'K', 'b'), P_('f7', 'P', 'b'), P_('g7', 'P', 'b'), P_('h7', 'P', 'b'), P_('e8', 'R', 'w'), P_('a1', 'K', 'w')];
+      return { pieces, arrows: [arrowSq('e8', 'g8')] };
+    })(),
+    caption: "Checkmate — the king can't step forward past its own pawns, and can't escape along the rank either.",
+    spot: "Whenever a castled king still has all three pawns in front of it late in the game, watch for a rook or queen sneaking onto that back rank.",
+  },
+  {
+    name: 'Smothered Mate', badge: 'Checkmate pattern',
+    text: "A <strong>smothered mate</strong> happens when a king is completely surrounded by its own pieces — so thoroughly that even a single knight delivering check is enough to win, because the king has no escape square anywhere, and nothing can capture or block a knight's check.",
+    diagram: (() => {
+      const pieces = [P_('h8', 'K', 'b'), P_('g8', 'R', 'b'), P_('g7', 'P', 'b'), P_('h7', 'P', 'b'), P_('f7', 'N', 'w'), P_('a1', 'K', 'w')];
+      return { pieces, arrows: [arrowSq('f7', 'h8')] };
+    })(),
+    caption: "Checkmate — every square around the king is occupied by Black's own pieces.",
+    spot: "This pattern often follows a queen sacrifice that forces the king into a corner — knights are the only piece whose check can't be blocked, which is exactly what makes a smothered position fatal.",
+  },
+];
+
+function renderPieceMovesLesson() {
+  const container = document.getElementById('movesContent');
+  const intro = document.createElement('div');
+  intro.className = 'lesson-intro';
+  intro.innerHTML = '<h1>How Each Piece Moves</h1><p>Every diagram below is generated by the app\'s real rules engine — the highlighted squares are exactly what\'s legal, not just an illustration. Tap between tabs any time; nothing here affects your current game.</p>';
+  container.appendChild(intro);
+  PIECE_LESSONS.forEach(lesson => {
+    const card = document.createElement('div');
+    card.className = 'lesson-card';
+    const head = document.createElement('div');
+    head.className = 'lesson-card-head';
+    const iconSpan = document.createElement('span');
+    iconSpan.className = 'piece white lesson-piece-icon';
+    setPieceContent(iconSpan, lesson.type);
+    const headText = document.createElement('div');
+    headText.innerHTML = '<h2>' + lesson.name + '</h2><div class="lesson-meta">' + lesson.meta + '</div>';
+    head.appendChild(iconSpan); head.appendChild(headText);
+    card.appendChild(head);
+    const text = document.createElement('p');
+    text.className = 'lesson-text';
+    text.innerHTML = lesson.text;
+    card.appendChild(text);
+    const diagWrap = document.createElement('div');
+    diagWrap.className = 'lesson-diagrams';
+    lesson.diagrams.forEach(d => {
+      const block = document.createElement('div');
+      block.className = 'diagram-block';
+      block.appendChild(createDiagram(d));
+      const cap = document.createElement('div'); cap.className = 'diagram-caption'; cap.textContent = d.caption;
+      block.appendChild(cap);
+      if (d.note) { const n = document.createElement('div'); n.className = 'diagram-note'; n.textContent = d.note; block.appendChild(n); }
+      diagWrap.appendChild(block);
+    });
+    card.appendChild(diagWrap);
+    if (lesson.tips && lesson.tips.length) {
+      const tips = document.createElement('ul');
+      tips.className = 'lesson-tips';
+      lesson.tips.forEach(t => { const li = document.createElement('li'); li.textContent = t; tips.appendChild(li); });
+      card.appendChild(tips);
+    }
+    container.appendChild(card);
+  });
+}
+
+function renderTacticsLesson() {
+  const container = document.getElementById('tacticsContent');
+  const intro = document.createElement('div');
+  intro.className = 'lesson-intro';
+  intro.innerHTML = '<h1>Tactics</h1><p>Tactics are short forcing sequences that win material or deliver checkmate. Learning to recognize these patterns at a glance is the single biggest jump a beginner can make toward playing like an expert.</p>';
+  container.appendChild(intro);
+  TACTIC_LESSONS.forEach(lesson => {
+    const card = document.createElement('div');
+    card.className = 'lesson-card';
+    const badge = document.createElement('div'); badge.className = 'lesson-badge'; badge.textContent = lesson.badge;
+    card.appendChild(badge);
+    const h2 = document.createElement('h2'); h2.textContent = lesson.name;
+    card.appendChild(h2);
+    const text = document.createElement('p'); text.className = 'lesson-text'; text.innerHTML = lesson.text;
+    card.appendChild(text);
+    const diagWrap = document.createElement('div'); diagWrap.className = 'lesson-diagrams';
+    const block = document.createElement('div'); block.className = 'diagram-block';
+    block.appendChild(createDiagram(lesson.diagram));
+    const cap = document.createElement('div'); cap.className = 'diagram-caption'; cap.textContent = lesson.caption;
+    block.appendChild(cap);
+    diagWrap.appendChild(block);
+    card.appendChild(diagWrap);
+    const tipBox = document.createElement('div'); tipBox.className = 'lesson-tip-box';
+    tipBox.innerHTML = '<strong>How to spot it:</strong> ' + lesson.spot;
+    card.appendChild(tipBox);
+    container.appendChild(card);
+  });
+}
+
+/* ---------- Navigation ---------- */
+document.getElementById('mainNav').addEventListener('click', (e) => {
+  const btn = e.target.closest('.nav-btn');
+  if (!btn) return;
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + btn.dataset.screen).classList.add('active');
+  window.scrollTo(0, 0);
+});
+
 /* ---------- Init ---------- */
 function init() {
-  let theme = 'wood';
-  try { theme = localStorage.getItem(THEME_KEY) || 'wood'; } catch (e) {}
+  let theme = 'minimal';
+  try { theme = localStorage.getItem(THEME_KEY) || 'minimal'; } catch (e) {}
   applyTheme(theme);
 
   try { app.soundOn = localStorage.getItem(SOUND_KEY) !== '0'; } catch (e) {}
@@ -1549,11 +2033,15 @@ function init() {
 
   document.getElementById('eloVal').textContent = app.aiElo;
   document.getElementById('eloSlider').value = app.aiElo;
-  document.getElementById('undoBtn').style.display = 'inline-block';
+  document.getElementById('eloField').style.display = app.mode === 'fixed' ? 'block' : 'none';
+  document.getElementById('colorField').style.display = app.mode !== '2p' ? 'block' : 'none';
+  document.getElementById('undoBtn').style.display = app.mode === '2p' ? 'inline-block' : 'none';
 
   renderProfile();
   updateOrientationLabels();
   startNewGame();
+  renderPieceMovesLesson();
+  renderTacticsLesson();
 }
 init();
 
