@@ -205,16 +205,14 @@ h1,h2,h3{ font-family: var(--font-display); margin: 0; }
 .square.light .coord{ color: var(--board-dark); }
 .square.dark .coord{ color: var(--board-light); }
 
-.square.last-move::before{
-  content:""; position:absolute; inset:0; background: var(--square-lastmove);
-}
+.square.last-move{ box-shadow: inset 0 0 0 999px var(--square-lastmove); }
 .square.selected::after{
   content:""; position:absolute; inset: 3px; border: 3px solid var(--square-select); border-radius: 4px;
   box-shadow: 0 0 10px color-mix(in srgb, var(--square-select) 70%, transparent);
   pointer-events:none;
 }
 .square.legal-move::before{
-  content:""; position:absolute; width: 28%; height: 28%; border-radius: 50%;
+  content:""; position:absolute; inset: 36%; border-radius: 50%;
   background: var(--dot); pointer-events:none;
 }
 .square.legal-capture::after{
@@ -343,6 +341,17 @@ select{
 .history-list li .res-d{ color: var(--text-dim); font-weight:700; }
 .history-list:empty::after{ content:"No games played yet."; color: var(--text-dim); display:block; padding: 8px 0; }
 
+.game-log-list{ list-style:none; margin:0; padding:0; max-height: 260px; overflow-y:auto; }
+.game-log-list li{
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+  padding: 9px 2px; border-bottom: 1px solid var(--panel-border);
+}
+.game-log-list li:last-child{ border-bottom:none; }
+.game-log-entry-info{ min-width:0; }
+.game-log-entry-title{ font-size: 12.5px; font-weight:700; color: var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.game-log-entry-meta{ font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+.game-log-list:empty::after{ content:"No finished games yet — play one to unlock review."; color: var(--text-dim); display:block; padding: 8px 0; font-size:12.5px; }
+
 .moves-box{ max-height: 160px; overflow-y:auto; border: 1px solid var(--panel-border); border-radius: var(--radius-sm); background: var(--panel-2); }
 .moves-table{ width:100%; border-collapse: collapse; font-family: var(--font-mono); font-size: 12.5px; }
 .moves-table td{ padding: 4px 8px; }
@@ -393,6 +402,40 @@ textarea#pgnBox{
 .result-elo{ font-family: var(--font-mono); font-size: 15px; margin: 10px 0 4px; }
 .result-elo .delta-pos{ color: var(--success); }
 .result-elo .delta-neg{ color: var(--danger); }
+
+/* ---------- Review modal ---------- */
+/* Tightened padding (vs. the standard modal) specifically so the review board
+   can render at the same size as the live play board, not a cramped version
+   of it — the standard modal's overlay+content padding was eating ~90px. */
+#reviewModal{ padding: 6px; }
+.review-modal{
+  padding: 14px; text-align: left;
+  max-width: min(calc(var(--board-size) + 28px), calc(100vw - 12px));
+}
+.review-header{ display:flex; align-items:flex-start; justify-content:space-between; gap:10px; margin-bottom: 12px; }
+.review-header h2{ margin-bottom: 2px; }
+.review-subtitle{ font-size: 12px; color: var(--text-dim); }
+.review-board-wrap{
+  position: relative; width: var(--board-size); max-width: 100%; aspect-ratio: 1;
+  margin: 0 auto;
+}
+.review-board{
+  position: absolute; inset: 0;
+  display: grid; grid-template-columns: repeat(8,1fr); grid-template-rows: repeat(8,1fr);
+  border: 3px solid var(--board-border); border-radius: var(--radius-md); overflow: hidden;
+  box-shadow: 0 14px 30px -12px rgba(0,0,0,.5); touch-action: manipulation; user-select: none;
+}
+.review-move-label{
+  text-align:center; font-size: 14px; font-weight:700; margin: 12px 0 4px; color: var(--text); min-height: 20px;
+}
+.review-slider{ width:100%; margin: 6px 0 14px; accent-color: var(--accent); }
+.review-controls{ display:flex; align-items:center; justify-content:center; gap:8px; flex-wrap: wrap; }
+.review-controls .btn{ min-width: 44px; }
+.review-controls #reviewPlayBtn{ min-width: 92px; }
+.review-speed-row{ display:flex; align-items:center; justify-content:center; gap:10px; margin-top: 14px; }
+.review-speed-label{ font-size: 11.5px; color: var(--text-dim); text-transform:uppercase; letter-spacing:.06em; }
+.review-speed-segmented{ max-width: 220px; }
+.review-speed-segmented button{ padding: 6px 10px; font-size: 11.5px; }
 
 .thinking-badge{
   display:none; align-items:center; gap:8px; justify-content:center; font-size: 12.5px; color: var(--text-dim);
@@ -591,6 +634,12 @@ footer.credit .copyright{ margin-top: 4px; letter-spacing: .03em; }
     </div>
 
     <div class="card">
+      <h2>Game History</h2>
+      <div class="help-text" style="margin-top:-6px; margin-bottom:10px;">Every finished game is saved here — tap Review to watch it back, move by move.</div>
+      <ul class="game-log-list" id="gameLogList"></ul>
+    </div>
+
+    <div class="card">
       <h2>Move History</h2>
       <div class="moves-box"><table class="moves-table" id="movesTable"></table></div>
       <textarea id="pgnBox" readonly spellcheck="false"></textarea>
@@ -646,6 +695,52 @@ footer.credit .copyright{ margin-top: 4px; letter-spacing: .03em; }
     <div class="btn-row" style="justify-content:center; margin-top:10px;">
       <button class="btn primary" id="rematchBtn">New Game</button>
       <button class="btn ghost" id="closeModalBtn">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Review modal -->
+<div class="modal-overlay" id="reviewModal">
+  <div class="modal review-modal">
+    <div class="review-header">
+      <div>
+        <h2 id="reviewTitle">Game Review</h2>
+        <div class="review-subtitle" id="reviewSubtitle"></div>
+      </div>
+      <button class="iconbtn" id="reviewCloseBtn" title="Close review" aria-label="Close review">✕</button>
+    </div>
+
+    <div class="review-board-wrap">
+      <div class="review-board" id="reviewBoard" role="grid" aria-label="Review board"></div>
+      <svg class="move-arrow-overlay" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+        <defs>
+          <marker id="reviewArrowhead" viewBox="0 0 10 10" refX="5.5" refY="5" markerWidth="3.4" markerHeight="3.4" orient="auto-start-reverse">
+            <path class="arrow-fill" d="M0,0 L10,5 L0,10 Z"></path>
+          </marker>
+        </defs>
+        <line id="reviewArrowLine" class="arrow-line" x1="0" y1="0" x2="0" y2="0" marker-end="url(#reviewArrowhead)"></line>
+      </svg>
+    </div>
+
+    <div class="review-move-label" id="reviewMoveLabel">Start of game</div>
+
+    <input type="range" id="reviewSlider" class="review-slider" min="0" max="0" step="1" value="0">
+
+    <div class="review-controls">
+      <button class="btn small" id="reviewToStartBtn" title="Jump to start">⏮</button>
+      <button class="btn small" id="reviewStepBackBtn" title="Step back">◀</button>
+      <button class="btn primary" id="reviewPlayBtn" title="Play">▶ Play</button>
+      <button class="btn small" id="reviewStepFwdBtn" title="Step forward">▶</button>
+      <button class="btn small" id="reviewToEndBtn" title="Jump to end">⏭</button>
+    </div>
+
+    <div class="review-speed-row">
+      <span class="review-speed-label">Speed</span>
+      <div class="segmented review-speed-segmented" id="reviewSpeedSelector">
+        <button data-speed="1800">Slow</button>
+        <button data-speed="1100" class="active">Normal</button>
+        <button data-speed="600">Fast</button>
+      </div>
     </div>
   </div>
 </div>
@@ -1073,19 +1168,63 @@ function setPieceContent(span, type) {
   }
 }
 // A shattered version of the king, shown in place of the normal king on the
-// square where checkmate is actually delivered.
-const BROKEN_KING_SVG = `
-  <g transform="rotate(-9 50 40) translate(-5,-3)">
-    <rect x="47" y="6" width="6" height="16"/><rect x="40" y="11" width="20" height="6"/>
-    <circle cx="50" cy="27" r="6"/><polygon points="28,34 72,34 72,46 28,46"/>
-  </g>
-  <g transform="rotate(8 50 64) translate(5,4)">
-    <polygon points="30,48 70,48 77,80 23,80"/>
-  </g>
-  <polygon points="14,74 22,67 20,80"/>
-  <polygon points="86,72 79,65 82,80"/>
-  <path class="crack" d="M26,46 L35,53 L29,59 L41,55 L36,65 L49,57 L44,68 L66,58" fill="none"/>
-`;
+// square where checkmate is actually delivered. Splits into five main pieces
+// plus flying debris and animates apart using SVG's native SMIL animation,
+// which — unlike CSS transforms on SVG shapes — has no unit ambiguity within
+// the viewBox's coordinate system, so it plays identically everywhere.
+// Structure per fragment: outer <g> animates translate, inner <g> animates
+// rotate — nesting composes cleanly without needing additive SMIL semantics.
+function fragment(shapeMarkup, pivot, rotateTo, translateTo, begin, dur) {
+  return `
+    <g>
+      <animateTransform attributeName="transform" type="translate" from="0 0" to="${translateTo}"
+        begin="${begin}s" dur="${dur}s" fill="freeze" calcMode="spline" keySplines="0.15 0 0.25 1"/>
+      <g>
+        <animateTransform attributeName="transform" type="rotate" from="0 ${pivot}" to="${rotateTo} ${pivot}"
+          begin="${begin}s" dur="${dur}s" fill="freeze" calcMode="spline" keySplines="0.15 0 0.25 1"/>
+        ${shapeMarkup}
+      </g>
+    </g>`;
+}
+function shard(points, pivot, translateTo, rotateTo, begin, dur) {
+  return `
+    <g opacity="0">
+      <animate attributeName="opacity" from="0" to="1" begin="${begin}s" dur="0.18s" fill="freeze"/>
+      <animateTransform attributeName="transform" type="translate" from="0 0" to="${translateTo}"
+        begin="${begin}s" dur="${dur}s" fill="freeze" calcMode="spline" keySplines="0.15 0 0.25 1"/>
+      <g>
+        <animateTransform attributeName="transform" type="rotate" from="0 ${pivot}" to="${rotateTo} ${pivot}"
+          begin="${begin}s" dur="${dur}s" fill="freeze" calcMode="spline" keySplines="0.15 0 0.25 1"/>
+        <polygon points="${points}"/>
+      </g>
+    </g>`;
+}
+const BROKEN_KING_SVG =
+  // Crack, drawn in fast, right at the start
+  `<path class="crack" d="M26,46 L35,53 L29,59 L41,55 L36,65 L49,57 L44,68 L66,58" fill="none"
+     stroke-dasharray="140" stroke-dashoffset="140">
+     <animate attributeName="stroke-dashoffset" from="140" to="0" begin="0.02s" dur="0.38s" fill="freeze"/>
+   </path>`
+  // Cross — flies up and left, tumbling
+  + fragment('<rect x="47" y="6" width="6" height="16"/><rect x="40" y="11" width="20" height="6"/>',
+      '50 14', -55, '-15 -18', 0.05, 1.05)
+  // Ball — flies up and right
+  + fragment('<circle cx="50" cy="27" r="6"/>',
+      '50 27', 45, '16 -12', 0.1, 1.0)
+  // Collar, split into two halves
+  + fragment('<polygon points="28,34 50,34 50,46 28,46"/>',
+      '39 40', -28, '-11 5', 0.15, 0.9)
+  + fragment('<polygon points="50,34 72,34 72,46 50,46"/>',
+      '61 40', 28, '11 5', 0.15, 0.9)
+  // Base — settles rather than flying, largest piece stays grounded
+  + fragment('<polygon points="30,48 70,48 77,80 23,80"/>',
+      '50 64', 6, '0 3', 0.2, 0.7)
+  // Debris shards, staggered
+  + shard('14,74 22,67 20,80', '18 74', '-9 6', -30, 0.22, 0.6)
+  + shard('86,72 79,65 82,80', '82 72', '9 6', 30, 0.26, 0.6)
+  + shard('40,20 46,14 44,24', '43 19', '-6 -14', -40, 0.3, 0.55)
+  + shard('60,20 54,14 56,24', '57 19', '6 -14', 40, 0.34, 0.55)
+  + shard('50,44 54,40 56,48', '53 44', '2 10', 20, 0.4, 0.5);
 
 const boardEl = document.getElementById('board');
 const statusBar = document.getElementById('statusBar');
@@ -1102,6 +1241,7 @@ const labelBottom = document.getElementById('labelBottom');
 let app = {
   state: createInitialState(),
   sanHistory: [],      // [{num, san, color}]
+  moveHistory: [],      // [{from,to,promotion,castle,enPassant,capture,san,color}] — full move objects, for game review
   stateStack: [createInitialState()],
   selected: null,       // {r,c}
   legalForSelected: [],
@@ -1121,6 +1261,7 @@ let app = {
 const STATS_KEY = 'sq64_stats_v1';
 const THEME_KEY = 'sq64_theme_v1';
 const SOUND_KEY = 'sq64_sound_v1';
+const GAMELOG_KEY = 'sq64_gamelog_v1';
 
 function loadStats() {
   try {
@@ -1133,6 +1274,31 @@ function saveStats(stats) {
   try { localStorage.setItem(STATS_KEY, JSON.stringify(stats)); } catch (e) {}
 }
 let stats = loadStats();
+
+/* ---------- Persistent game log (for the Review feature) ---------- */
+// Stores full move lists for completed games, capped to the most recent 20,
+// so any past game (single-player or two-player) can be replayed move by move.
+function loadGameLog() {
+  try {
+    const raw = localStorage.getItem(GAMELOG_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch (e) {}
+  return [];
+}
+function saveGameLog(log) {
+  try { localStorage.setItem(GAMELOG_KEY, JSON.stringify(log)); } catch (e) {}
+}
+let gameLog = loadGameLog();
+// Displays a stored ISO date ("2026-08-19") as "19-Aug-2026" for the Game
+// History list and the Review modal. Storage stays ISO for sortability.
+const DISPLAY_MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function formatDisplayDate(isoDate) {
+  const parts = isoDate.split('-');
+  if (parts.length !== 3) return isoDate;
+  const [y, m, d] = parts.map(Number);
+  if (!y || !m || !d) return isoDate;
+  return String(d).padStart(2, '0') + '-' + DISPLAY_MONTHS[m - 1] + '-' + y;
+}
 
 /* ---------- Sound (Web Audio, synthesized — no assets) ---------- */
 let audioCtx = null;
@@ -1158,6 +1324,53 @@ function soundMove() { beep(420, 0.09, 'triangle'); }
 function soundCapture() { beep(260, 0.11, 'square'); }
 function soundCheck() { beep(660, 0.14, 'sawtooth'); }
 function soundEnd() { beep(180, 0.35, 'sine'); }
+// A short synthesized glass-shatter "tink" — a brief high-passed noise burst
+// plus three delicate high tinkles — played when a king is actually shattered
+// on checkmate, in both the live game and game review. No audio files.
+function soundBreak() {
+  if (!app.soundOn) return;
+  ensureAudio();
+  if (!audioCtx) return;
+  try {
+    const now = audioCtx.currentTime;
+    // Brief high-passed noise burst — the initial "tap" of glass giving way
+    const bufferSize = Math.floor(audioCtx.sampleRate * 0.06);
+    const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+      data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / bufferSize, 2.5);
+    }
+    const noise = audioCtx.createBufferSource();
+    noise.buffer = buffer;
+    const noiseFilter = audioCtx.createBiquadFilter();
+    noiseFilter.type = 'highpass';
+    noiseFilter.frequency.value = 5000;
+    const noiseGain = audioCtx.createGain();
+    noiseGain.gain.setValueAtTime(0.16, now);
+    noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
+    noise.connect(noiseFilter).connect(noiseGain).connect(audioCtx.destination);
+    noise.start(now);
+
+    // Three delicate high tinkles, like thin wine-glass shards catching the light
+    [
+      { freq: 5200, delay: 0.01, dur: 0.35 },
+      { freq: 6400, delay: 0.06, dur: 0.30 },
+      { freq: 7600, delay: 0.11, dur: 0.25 },
+    ].forEach(({ freq, delay, dur }) => {
+      const start = now + delay;
+      const osc = audioCtx.createOscillator();
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      const gain = audioCtx.createGain();
+      gain.gain.setValueAtTime(0.0001, start);
+      gain.gain.linearRampToValueAtTime(0.09, start + 0.004);
+      gain.gain.exponentialRampToValueAtTime(0.0001, start + dur);
+      osc.connect(gain).connect(audioCtx.destination);
+      osc.start(start);
+      osc.stop(start + dur + 0.02);
+    });
+  } catch (e) {}
+}
 
 /* ---------- Board rendering ---------- */
 function squareIndexFromRC(r, c, flipped) {
@@ -1325,6 +1538,11 @@ function commitMove(move, opts) {
   app.state = nextState;
   app.lastMove = move;
   app.sanHistory.push({ num: (mover === 'w' ? nextState.fullmoveNumber - (nextState.turn === 'w' ? 0 : 0) : nextState.fullmoveNumber), san, color: mover });
+  app.moveHistory.push({
+    from: move.from, to: move.to,
+    promotion: move.promotion || null, castle: move.castle || null, enPassant: !!move.enPassant,
+    capture: !!move.capture, san, color: mover,
+  });
   app.stateStack.push(nextState);
 
   renderBoard();
@@ -1485,9 +1703,10 @@ function updateOrientationLabels() {
 function endGame(status) {
   app.gameOver = true;
   stopClockTimer();
-  let title = '', desc = '', winner = null, isDraw = false;
+  let title = '', desc = '', winner = null, isDraw = false, isCheckmate = false;
 
   if (status.status === 'checkmate') {
+    isCheckmate = true;
     winner = status.winner;
     title = 'Checkmate'; desc = (winner === 'w' ? 'White' : 'Black') + ' wins by checkmate.';
     const checkmatedColor = opponent(winner);
@@ -1502,7 +1721,7 @@ function endGame(status) {
 
   app.lastResult = isDraw ? 'draw' : winner;
   renderPGN();
-  soundEnd();
+  if (isCheckmate && app.brokenKing) soundBreak(); else soundEnd();
 
   let eloLine = '';
   if (app.mode !== '2p') {
@@ -1534,7 +1753,38 @@ function endGame(status) {
   document.getElementById('gameOverTitle').textContent = title;
   document.getElementById('gameOverDesc').textContent = desc;
   document.getElementById('gameOverElo').innerHTML = eloLine;
-  document.getElementById('gameOverModal').classList.add('open');
+  const openModal = () => document.getElementById('gameOverModal').classList.add('open');
+  if (isCheckmate && app.brokenKing) setTimeout(openModal, 1450); else openModal();
+
+  saveGameLogEntry(title, desc);
+}
+
+// Records the completed game's full move list so it can be replayed later in
+// Formats a date as "19-Aug-2026", used for the Game History / Review timestamps.
+function formatReviewDate(d) {
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return String(d.getDate()).padStart(2, '0') + '-' + months[d.getMonth()] + '-' + d.getFullYear();
+}
+// the Review screen. Runs for every mode (two-player and vs-computer alike).
+function saveGameLogEntry(title, desc) {
+  if (!app.moveHistory.length) return;
+  const whiteLabel = app.mode === '2p' ? 'Player 1' : (app.humanColor === 'w' ? 'You' : 'Computer');
+  const blackLabel = app.mode === '2p' ? 'Player 2' : (app.humanColor === 'b' ? 'You' : 'Computer');
+  gameLog.unshift({
+    id: Date.now(),
+    date: formatReviewDate(new Date()),
+    mode: app.mode,
+    title, desc,
+    whiteLabel, blackLabel,
+    moveCount: app.sanHistory.length,
+    moves: app.moveHistory.map(m => ({
+      from: m.from, to: m.to, promotion: m.promotion, castle: m.castle, enPassant: m.enPassant,
+      capture: m.capture, san: m.san, color: m.color,
+    })),
+  });
+  gameLog = gameLog.slice(0, 20);
+  saveGameLog(gameLog);
+  renderGameLog();
 }
 
 /* ---------- Profile / gauge ---------- */
@@ -1576,6 +1826,203 @@ function drawGauge(elo) {
   `;
 }
 
+/* ============================================================
+   GAME REVIEW — replay any finished game move by move
+   ============================================================ */
+let review = {
+  entry: null,      // the gameLog entry being reviewed
+  states: null,     // [initialState, stateAfterMove1, stateAfterMove2, ...] — precomputed once per open
+  index: 0,         // 0 = initial position, N = position after move N
+  playing: false,
+  timerId: null,
+  speed: 1100,
+};
+
+function renderGameLog() {
+  const list = document.getElementById('gameLogList');
+  list.innerHTML = '';
+  gameLog.forEach(entry => {
+    const li = document.createElement('li');
+    const info = document.createElement('div');
+    info.className = 'game-log-entry-info';
+    const modeLabel = entry.mode === '2p' ? 'Two Player' : entry.mode === 'adaptive' ? 'Adaptive AI' : 'Vs Computer';
+    info.innerHTML =
+      '<div class="game-log-entry-title">' + entry.title + '</div>' +
+      '<div class="game-log-entry-meta">' + formatDisplayDate(entry.date) + ' · ' + modeLabel + ' · ' + entry.moveCount + ' moves</div>';
+    const btn = document.createElement('button');
+    btn.className = 'btn small';
+    btn.textContent = 'Review';
+    btn.addEventListener('click', () => openReview(entry.id));
+    li.appendChild(info);
+    li.appendChild(btn);
+    list.appendChild(li);
+  });
+}
+
+// Replays every move of a stored game through the real engine once, up front,
+// so stepping through the review is instant and always exactly correct.
+function precomputeReviewStates(moves) {
+  const states = [createInitialState()];
+  let state = states[0];
+  for (const m of moves) {
+    state = applyMove(state, { from: m.from, to: m.to, promotion: m.promotion || undefined, castle: m.castle || undefined, enPassant: m.enPassant || undefined, capture: m.capture });
+    states.push(state);
+  }
+  return states;
+}
+
+function openReview(entryId) {
+  const entry = gameLog.find(g => g.id === entryId);
+  if (!entry) return;
+  stopReviewPlayback();
+  review.entry = entry;
+  review.states = precomputeReviewStates(entry.moves);
+  review.index = 0;
+
+  document.getElementById('reviewTitle').textContent = entry.title;
+  document.getElementById('reviewSubtitle').textContent =
+    formatDisplayDate(entry.date) + ' · ' + entry.whiteLabel + ' (White) vs ' + entry.blackLabel + ' (Black)';
+  const slider = document.getElementById('reviewSlider');
+  slider.max = String(entry.moves.length);
+  slider.value = '0';
+
+  buildReviewBoardDom();
+  renderReviewStep();
+  document.getElementById('reviewModal').classList.add('open');
+}
+
+function closeReview() {
+  stopReviewPlayback();
+  document.getElementById('reviewModal').classList.remove('open');
+}
+
+function stopReviewPlayback() {
+  review.playing = false;
+  if (review.timerId) { clearTimeout(review.timerId); review.timerId = null; }
+  const btn = document.getElementById('reviewPlayBtn');
+  if (btn) btn.textContent = '▶ Play';
+}
+
+function buildReviewBoardDom() {
+  const boardEl = document.getElementById('reviewBoard');
+  boardEl.innerHTML = '';
+  for (let i = 0; i < 64; i++) {
+    const sq = document.createElement('div');
+    sq.className = 'square';
+    boardEl.appendChild(sq);
+  }
+}
+
+function renderReviewStep() {
+  const boardEl = document.getElementById('reviewBoard');
+  const state = review.states[review.index];
+  const lastMove = review.index > 0 ? review.entry.moves[review.index - 1] : null;
+  const kingInCheckPos = isKingInCheck(state, state.turn) ? findKing(state.board, state.turn) : null;
+  const isFinalStep = review.index === review.entry.moves.length;
+  const isCheckmateEnding = isFinalStep && review.entry.title === 'Checkmate';
+
+  for (let r = 0; r < 8; r++) {
+    for (let c = 0; c < 8; c++) {
+      const el = boardEl.children[r * 8 + c];
+      el.className = 'square ' + (((r + c) % 2 === 0) ? 'light' : 'dark');
+      el.innerHTML = '';
+      if (lastMove && ((lastMove.from.r === r && lastMove.from.c === c) || (lastMove.to.r === r && lastMove.to.c === c))) {
+        el.classList.add('last-move');
+      }
+      if (kingInCheckPos && kingInCheckPos.r === r && kingInCheckPos.c === c) el.classList.add('in-check');
+
+      const piece = state.board[r][c];
+      if (piece) {
+        const span = document.createElement('span');
+        const isBrokenHere = isCheckmateEnding && piece.t === 'K' && kingInCheckPos && kingInCheckPos.r === r && kingInCheckPos.c === c;
+        span.className = 'piece ' + (piece.c === 'w' ? 'white' : 'black') + (isBrokenHere ? ' broken' : '');
+        if (isBrokenHere) span.innerHTML = '<svg viewBox="0 0 100 100">' + BROKEN_KING_SVG + '</svg>';
+        else setPieceContent(span, piece.t);
+        el.appendChild(span);
+      }
+    }
+  }
+
+  const line = document.getElementById('reviewArrowLine');
+  if (!lastMove) {
+    line.style.opacity = 0;
+  } else {
+    const from = { x: (lastMove.from.c + 0.5) / 8 * 100, y: (lastMove.from.r + 0.5) / 8 * 100 };
+    const to = { x: (lastMove.to.c + 0.5) / 8 * 100, y: (lastMove.to.r + 0.5) / 8 * 100 };
+    const dx = to.x - from.x, dy = to.y - from.y, dist = Math.hypot(dx, dy) || 1, pull = 5;
+    line.setAttribute('x1', from.x); line.setAttribute('y1', from.y);
+    line.setAttribute('x2', to.x - (dx / dist) * pull); line.setAttribute('y2', to.y - (dy / dist) * pull);
+    line.style.opacity = 0.9;
+  }
+
+  const label = document.getElementById('reviewMoveLabel');
+  if (review.index === 0) {
+    label.textContent = 'Start of game';
+  } else {
+    const moveNo = Math.ceil(review.index / 2);
+    const mover = lastMove.color === 'w' ? 'White' : 'Black';
+    label.textContent = 'Move ' + moveNo + (lastMove.color === 'w' ? '' : '…') + ' · ' + mover + ' played ' + lastMove.san;
+  }
+  document.getElementById('reviewSlider').value = String(review.index);
+
+  document.getElementById('reviewStepBackBtn').disabled = review.index === 0;
+  document.getElementById('reviewStepFwdBtn').disabled = review.index === review.entry.moves.length;
+  document.getElementById('reviewToStartBtn').disabled = review.index === 0;
+  document.getElementById('reviewToEndBtn').disabled = review.index === review.entry.moves.length;
+}
+
+function reviewGoToIndex(idx, opts) {
+  opts = opts || {};
+  const max = review.entry.moves.length;
+  const prevIndex = review.index;
+  review.index = Math.max(0, Math.min(max, idx));
+  renderReviewStep();
+  if (opts.sound && review.index > prevIndex) {
+    const moved = review.entry.moves[review.index - 1];
+    const isFinalCheckmateMove = review.index === max && review.entry.title === 'Checkmate';
+    if (isFinalCheckmateMove) soundBreak();
+    else if (moved.capture) soundCapture();
+    else soundMove();
+  }
+  if (review.index >= max) stopReviewPlayback();
+}
+function reviewStepForward(withSound) { reviewGoToIndex(review.index + 1, { sound: withSound }); }
+function reviewStepBack() { stopReviewPlayback(); reviewGoToIndex(review.index - 1); }
+function reviewToStart() { stopReviewPlayback(); reviewGoToIndex(0); }
+function reviewToEnd() { stopReviewPlayback(); reviewGoToIndex(review.entry.moves.length); }
+
+function reviewTogglePlay() {
+  if (review.playing) { stopReviewPlayback(); return; }
+  if (review.index >= review.entry.moves.length) reviewGoToIndex(0);
+  review.playing = true;
+  document.getElementById('reviewPlayBtn').textContent = '⏸ Pause';
+  const tick = () => {
+    if (!review.playing) return;
+    reviewStepForward(true);
+    if (review.index >= review.entry.moves.length) { stopReviewPlayback(); return; }
+    review.timerId = setTimeout(tick, review.speed);
+  };
+  review.timerId = setTimeout(tick, review.speed);
+}
+
+document.getElementById('reviewCloseBtn').addEventListener('click', closeReview);
+document.getElementById('reviewToStartBtn').addEventListener('click', reviewToStart);
+document.getElementById('reviewStepBackBtn').addEventListener('click', reviewStepBack);
+document.getElementById('reviewStepFwdBtn').addEventListener('click', () => { stopReviewPlayback(); reviewStepForward(true); });
+document.getElementById('reviewToEndBtn').addEventListener('click', reviewToEnd);
+document.getElementById('reviewPlayBtn').addEventListener('click', reviewTogglePlay);
+document.getElementById('reviewSlider').addEventListener('input', (e) => {
+  stopReviewPlayback();
+  reviewGoToIndex(Number(e.target.value));
+});
+document.getElementById('reviewSpeedSelector').addEventListener('click', (e) => {
+  const btn = e.target.closest('button[data-speed]');
+  if (!btn) return;
+  document.querySelectorAll('#reviewSpeedSelector button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  review.speed = Number(btn.dataset.speed);
+});
+
 /* ---------- New game / setup ---------- */
 function startNewGame() {
   document.getElementById('gameOverModal').classList.remove('open');
@@ -1585,6 +2032,7 @@ function startNewGame() {
   app.state = createInitialState();
   app.stateStack = [app.state];
   app.sanHistory = [];
+  app.moveHistory = [];
   app.selected = null; app.legalForSelected = [];
   app.lastMove = null;
   app.gameOver = false;
@@ -2043,6 +2491,7 @@ function init() {
   document.getElementById('undoBtn').style.display = app.mode === '2p' ? 'inline-block' : 'none';
 
   renderProfile();
+  renderGameLog();
   updateOrientationLabels();
   startNewGame();
   renderPieceMovesLesson();
