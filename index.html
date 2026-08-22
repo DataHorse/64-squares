@@ -403,32 +403,41 @@ textarea#pgnBox{
 .result-elo .delta-pos{ color: var(--success); }
 .result-elo .delta-neg{ color: var(--danger); }
 
-/* ---------- Review modal ---------- */
-/* Tightened padding (vs. the standard modal) specifically so the review board
-   can render at the same size as the live play board, not a cramped version
-   of it — the standard modal's overlay+content padding was eating ~90px. */
-#reviewModal{ padding: 6px; }
-.review-modal{
-  padding: 14px; text-align: left;
-  max-width: min(calc(var(--board-size) + 28px), calc(100vw - 12px));
-}
-.review-header{ display:flex; align-items:flex-start; justify-content:space-between; gap:10px; margin-bottom: 12px; }
-.review-header h2{ margin-bottom: 2px; }
-.review-subtitle{ font-size: 12px; color: var(--text-dim); }
-.review-board-wrap{
-  position: relative; width: var(--board-size); max-width: 100%; aspect-ratio: 1;
-  margin: 0 auto;
-}
+/* ---------- Review screen ---------- */
+.review-page{ max-width: 1180px; margin: 0 auto; padding: 18px 18px 40px; }
+.review-page-header{ display:flex; align-items:center; gap:14px; margin-bottom: 16px; }
+.review-page-heading h1{ font-size: 20px; }
+.review-subtitle{ font-size: 12.5px; color: var(--text-dim); margin-top: 2px; }
+
+.review-summary-card{ margin-bottom: 16px; }
+.review-summary-row{ display:flex; justify-content:space-around; text-align:center; gap:10px; flex-wrap:wrap; }
+.review-summary-stat{ min-width: 90px; }
+.review-summary-num{ font-size: 18px; font-weight:700; font-family: var(--font-mono); }
+.review-summary-label{ font-size: 10.5px; color: var(--text-dim); text-transform:uppercase; letter-spacing:.06em; margin-top: 2px; }
+.review-tally-row{ display:flex; flex-wrap:wrap; gap:8px; margin-top: 14px; justify-content:center; }
+.tally-pill{ display:flex; align-items:center; gap:6px; padding: 5px 11px; border-radius: 999px; background: var(--panel-2); border: 1px solid var(--panel-border); font-size: 12px; color: var(--text-dim); }
+.tally-pill b{ color: var(--text); font-family: var(--font-mono); }
+.review-progress-wrap{ margin-top: 14px; }
+.review-progress-track{ height: 8px; border-radius: 99px; background: var(--panel-2); overflow: hidden; }
+.review-progress-fill{ height: 100%; background: var(--accent); width: 0%; transition: width .15s ease; }
+.review-progress-label{ font-size: 11.5px; color: var(--text-dim); margin-top: 6px; text-align:center; }
+
+.review-main-grid{ display:grid; grid-template-columns: 1fr; gap: 18px; }
+@media (min-width: 980px){ .review-main-grid{ grid-template-columns: var(--board-size) 1fr; align-items:start; } }
+
+.review-board-col{ display:flex; flex-direction:column; align-items:center; gap:6px; }
+.review-board-wrap{ position: relative; width: var(--board-size); max-width: 100%; aspect-ratio: 1; margin: 0 auto; }
 .review-board{
   position: absolute; inset: 0;
   display: grid; grid-template-columns: repeat(8,1fr); grid-template-rows: repeat(8,1fr);
   border: 3px solid var(--board-border); border-radius: var(--radius-md); overflow: hidden;
   box-shadow: 0 14px 30px -12px rgba(0,0,0,.5); touch-action: manipulation; user-select: none;
+  container-type: inline-size;
 }
-.review-move-label{
-  text-align:center; font-size: 14px; font-weight:700; margin: 12px 0 4px; color: var(--text); min-height: 20px;
-}
-.review-slider{ width:100%; margin: 6px 0 14px; accent-color: var(--accent); }
+.review-board .piece.glyph-piece{ font-size: 8.35cqw; }
+.review-move-label-row{ display:flex; align-items:center; justify-content:center; gap:8px; margin: 10px 0 4px; flex-wrap:wrap; }
+.review-move-label{ font-size: 14px; font-weight:700; color: var(--text); text-align:center; }
+.review-slider{ width:100%; max-width: var(--board-size); margin: 6px 0 14px; accent-color: var(--accent); }
 .review-controls{ display:flex; align-items:center; justify-content:center; gap:8px; flex-wrap: wrap; }
 .review-controls .btn{ min-width: 44px; }
 .review-controls #reviewPlayBtn{ min-width: 92px; }
@@ -436,6 +445,47 @@ textarea#pgnBox{
 .review-speed-label{ font-size: 11.5px; color: var(--text-dim); text-transform:uppercase; letter-spacing:.06em; }
 .review-speed-segmented{ max-width: 220px; }
 .review-speed-segmented button{ padding: 6px 10px; font-size: 11.5px; }
+
+.move-badge{
+  display:inline-flex; align-items:center; padding: 3px 10px; border-radius: 999px;
+  font-size: 11px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; white-space:nowrap;
+}
+.move-badge.book, .move-badge.good{ background: var(--panel-2); color: var(--text-dim); border:1px solid var(--panel-border); }
+.move-badge.best, .move-badge.excellent{ background: color-mix(in srgb, var(--success) 20%, transparent); color: var(--success); }
+.move-badge.inaccuracy{ background: color-mix(in srgb, #eab308 22%, transparent); color: #eab308; }
+.move-badge.mistake{ background: color-mix(in srgb, #f97316 24%, transparent); color: #f97316; }
+.move-badge.blunder{ background: color-mix(in srgb, var(--danger) 24%, transparent); color: var(--danger); }
+.move-badge.miss{ background: color-mix(in srgb, #d946ef 22%, transparent); color: #d946ef; }
+
+.coach-panel{
+  margin-top: 12px; padding: 14px; background: var(--panel-2); border: 1px solid var(--panel-border);
+  border-left: 3px solid var(--accent); border-radius: var(--radius-sm); width: 100%; max-width: var(--board-size);
+}
+.coach-panel-head{ display:flex; align-items:center; gap:9px; margin-bottom: 8px; }
+.coach-panel-title{ font-weight:700; font-size: 13.5px; color: var(--text); }
+.coach-panel-text{ font-size: 13px; color: var(--text-dim); line-height: 1.55; margin: 0 0 10px; }
+.coach-panel-actions{ display:flex; gap:8px; flex-wrap:wrap; }
+
+.eval-graph-card h2{ margin-bottom: 10px; }
+.eval-graph{ width:100%; height: 90px; display:block; border-radius: var(--radius-sm); background: var(--panel-2); cursor: pointer; }
+.review-moves-box{ max-height: 260px; }
+.review-moves-box td.san{ cursor: pointer; }
+
+.move-arrow-overlay .arrow-fill-best{ fill: var(--success); }
+.move-arrow-overlay .arrow-line-best{
+  stroke: var(--success); stroke-width: 1.4; stroke-linecap: round; stroke-dasharray: 4 3;
+  opacity: 0; transition: opacity .15s ease; filter: drop-shadow(0 1px 1px rgba(0,0,0,.4));
+}
+
+/* ---------- Practice / puzzles ---------- */
+.practice-progress{ text-align:center; font-size: 12px; color: var(--text-dim); text-transform:uppercase; letter-spacing:.06em; margin-bottom: 4px; }
+.practice-prompt{ text-align:center; font-size: 15px; font-weight:700; color: var(--text); margin-bottom: 10px; }
+#practiceBoard{ width: var(--board-size); max-width:100%; }
+.weakness-row{ display:flex; align-items:center; gap:10px; margin-bottom: 10px; }
+.weakness-label{ flex: 0 0 150px; font-size: 12.5px; color: var(--text-dim); }
+.weakness-bar-track{ flex:1; height: 10px; border-radius: 99px; background: var(--panel-2); overflow:hidden; }
+.weakness-bar-fill{ height:100%; background: var(--accent); border-radius: 99px; }
+.weakness-count{ flex: 0 0 24px; text-align:right; font-size: 12px; font-family: var(--font-mono); color: var(--text-dim); }
 
 .thinking-badge{
   display:none; align-items:center; gap:8px; justify-content:center; font-size: 12.5px; color: var(--text-dim);
@@ -506,6 +556,27 @@ footer.credit .copyright{ margin-top: 4px; letter-spacing: .03em; }
 }
 .dsquare .piece{ cursor: default; }
 
+/* Tap-to-zoom affordance on lesson diagrams (Learn / Tactics / Endgames) */
+.diagram-wrap.zoomable{ cursor: zoom-in; }
+.diagram-zoom-badge{
+  position:absolute; bottom:6px; right:6px; width:24px; height:24px; border-radius:50%;
+  background: color-mix(in srgb, var(--panel) 80%, transparent); border: 1px solid var(--panel-border);
+  display:flex; align-items:center; justify-content:center; font-size:12px; pointer-events:none;
+  box-shadow: 0 2px 6px rgba(0,0,0,.35);
+}
+.diagram-lightbox-modal{ max-width: min(94vw, 520px); text-align:center; position:relative; padding-top: 44px; }
+.diagram-lightbox-close{ position:absolute; top:10px; right:10px; }
+.diagram-lightbox-caption{ font-size: 13px; color: var(--text-dim); margin-bottom: 12px; min-height: 18px; }
+.diagram-lightbox-board-wrap{ width: min(88vw, 460px); margin: 0 auto; }
+.diagram-lightbox-zoom-area{
+  overflow: hidden; touch-action: none; user-select: none; border-radius: var(--radius-sm);
+}
+#diagramLightboxContent{
+  transform-origin: center center; transition: transform .05s linear; cursor: grab;
+}
+.diagram-lightbox-zoom-controls{ display:flex; align-items:center; justify-content:center; gap:8px; margin-top: 12px; }
+.diagram-lightbox-zoom-controls .btn{ min-width: 44px; }
+
 .lesson-tips{ list-style:none; margin: 14px 0 0; padding: 12px 14px; background: var(--panel-2);
   border-radius: var(--radius-sm); border: 1px solid var(--panel-border); }
 .lesson-tips li{ font-size: 13px; color: var(--text-dim); line-height: 1.55; padding: 3px 0; }
@@ -535,6 +606,8 @@ footer.credit .copyright{ margin-top: 4px; letter-spacing: .03em; }
     <button class="nav-btn active" data-screen="play">Play</button>
     <button class="nav-btn" data-screen="moves">Learn</button>
     <button class="nav-btn" data-screen="tactics">Tactics</button>
+    <button class="nav-btn" data-screen="endgames">Endgames</button>
+    <button class="nav-btn" data-screen="practice">Practice</button>
   </nav>
   <div class="topbar-actions">
     <button class="iconbtn" id="soundToggle" title="Toggle sound" aria-label="Toggle sound">🔊</button>
@@ -560,8 +633,12 @@ footer.credit .copyright{ margin-top: 4px; letter-spacing: .03em; }
           <marker id="arrowhead" viewBox="0 0 10 10" refX="5.5" refY="5" markerWidth="3.4" markerHeight="3.4" orient="auto-start-reverse">
             <path class="arrow-fill" d="M0,0 L10,5 L0,10 Z"></path>
           </marker>
+          <marker id="hintArrowhead" viewBox="0 0 10 10" refX="5.5" refY="5" markerWidth="3.4" markerHeight="3.4" orient="auto-start-reverse">
+            <path class="arrow-fill-best" d="M0,0 L10,5 L0,10 Z"></path>
+          </marker>
         </defs>
         <line id="moveArrowLine" class="arrow-line" x1="0" y1="0" x2="0" y2="0" marker-end="url(#arrowhead)"></line>
+        <line id="hintArrowLine" class="arrow-line-best" x1="0" y1="0" x2="0" y2="0" marker-end="url(#hintArrowhead)"></line>
       </svg>
     </div>
 
@@ -575,6 +652,9 @@ footer.credit .copyright{ margin-top: 4px; letter-spacing: .03em; }
         <button class="btn" id="flipBtn">Flip Board</button>
         <button class="btn" id="undoBtn">Undo</button>
         <button class="btn danger" id="resignBtn">Resign</button>
+      </div>
+      <div class="btn-row">
+        <button class="btn ghost" id="hintBtn" title="Show the engine's suggested move for a few seconds">💡 Hint</button>
       </div>
     </div>
   </section>
@@ -668,9 +748,95 @@ footer.credit .copyright{ margin-top: 4px; letter-spacing: .03em; }
   <div class="lesson-wrap" id="tacticsContent"></div>
 </section>
 
+<section id="screen-endgames" class="screen">
+  <div class="lesson-wrap" id="endgamesContent"></div>
+</section>
+
+<section id="screen-practice" class="screen">
+  <div class="lesson-wrap">
+    <div class="lesson-intro">
+      <h1>Practice</h1>
+      <p>Every mistake flagged in Review becomes a puzzle here — the exact position, asking you to find the move you missed. Puzzles come back on a spaced schedule so the pattern actually sticks.</p>
+    </div>
+
+    <div class="card" id="weaknessCard" style="display:none;">
+      <h2>Your Patterns</h2>
+      <div class="help-text" style="margin-top:-6px; margin-bottom:10px;">Across every game you've analyzed — the more you play and analyze, the more useful this gets.</div>
+      <div id="weaknessList"></div>
+    </div>
+
+    <div class="card" id="practiceSummaryCard">
+      <h2>Puzzle Queue</h2>
+      <div class="review-summary-row">
+        <div class="review-summary-stat">
+          <div class="review-summary-num" id="practiceDueCount">0</div>
+          <div class="review-summary-label">Due now</div>
+        </div>
+        <div class="review-summary-stat">
+          <div class="review-summary-num" id="practiceTotalCount">0</div>
+          <div class="review-summary-label">Total puzzles</div>
+        </div>
+        <div class="review-summary-stat">
+          <div class="review-summary-num" id="practiceMasteredCount">0</div>
+          <div class="review-summary-label">Mastered</div>
+        </div>
+      </div>
+      <button class="btn primary" id="startPracticeBtn" style="width:100%; margin-top:14px;">Start Practice Session</button>
+      <div class="help-text" id="practiceEmptyNote" style="text-align:center; margin-top:10px; display:none;">No puzzles yet — play a game, analyze it in Review, and any flagged mistakes will show up here.</div>
+    </div>
+
+    <div class="card" id="practiceSessionCard" style="display:none;">
+      <div class="practice-progress" id="practiceProgress">Puzzle 1 of 5</div>
+      <div class="practice-prompt" id="practicePrompt">Find the best move for White</div>
+
+      <div class="review-board-wrap" style="margin: 10px auto;">
+        <div class="board" id="practiceBoard" role="grid" aria-label="Puzzle board"></div>
+        <svg class="move-arrow-overlay" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+          <defs>
+            <marker id="practiceArrowhead" viewBox="0 0 10 10" refX="5.5" refY="5" markerWidth="3.4" markerHeight="3.4" orient="auto-start-reverse">
+              <path class="arrow-fill-best" d="M0,0 L10,5 L0,10 Z"></path>
+            </marker>
+          </defs>
+          <line id="practiceArrowLine" class="arrow-line-best" x1="0" y1="0" x2="0" y2="0" marker-end="url(#practiceArrowhead)"></line>
+        </svg>
+      </div>
+
+      <div class="coach-panel" id="practiceFeedback" style="display:none; margin-left:auto; margin-right:auto;"></div>
+
+      <div class="review-controls" style="margin-top:12px;">
+        <button class="btn small" id="practiceSkipBtn">Skip</button>
+        <button class="btn primary" id="practiceNextBtn" style="display:none;">Next Puzzle →</button>
+      </div>
+    </div>
+
+    <div class="card" id="practiceSessionEndCard" style="display:none; text-align:center;">
+      <h2 id="practiceSessionEndTitle">Session complete!</h2>
+      <p class="lesson-text" id="practiceSessionEndText" style="text-align:center;"></p>
+      <button class="btn primary" id="practiceDoneBtn">Back to Practice</button>
+    </div>
+  </div>
+</section>
+
 <footer class="credit">
   <div class="copyright">© 2026 Data Horse</div>
 </footer>
+
+<!-- Diagram zoom lightbox (Learn / Tactics / Endgames) -->
+<div class="modal-overlay" id="diagramLightbox">
+  <div class="modal diagram-lightbox-modal">
+    <button class="iconbtn diagram-lightbox-close" id="diagramLightboxClose" title="Close" aria-label="Close">✕</button>
+    <div class="diagram-lightbox-caption" id="diagramLightboxCaption"></div>
+    <div class="diagram-lightbox-zoom-area" id="diagramLightboxZoomArea">
+      <div id="diagramLightboxContent"></div>
+    </div>
+    <div class="diagram-lightbox-zoom-controls">
+      <button class="btn small" id="diagramZoomOutBtn" title="Zoom out">−</button>
+      <button class="btn small" id="diagramZoomResetBtn" title="Reset zoom">Reset</button>
+      <button class="btn small" id="diagramZoomInBtn" title="Zoom in">+</button>
+    </div>
+    <div class="help-text" style="margin-top:8px;">Pinch, drag, or use the buttons to zoom in on any detail.</div>
+  </div>
+</div>
 
 <!-- Promotion modal -->
 <div class="modal-overlay" id="promoModal">
@@ -699,51 +865,118 @@ footer.credit .copyright{ margin-top: 4px; letter-spacing: .03em; }
   </div>
 </div>
 
-<!-- Review modal -->
-<div class="modal-overlay" id="reviewModal">
-  <div class="modal review-modal">
-    <div class="review-header">
-      <div>
-        <h2 id="reviewTitle">Game Review</h2>
+<!-- Review screen -->
+<section id="screen-review" class="screen">
+  <div class="review-page">
+    <div class="review-page-header">
+      <button class="btn small" id="reviewBackBtn">← Back</button>
+      <div class="review-page-heading">
+        <h1 id="reviewTitle">Game Review</h1>
         <div class="review-subtitle" id="reviewSubtitle"></div>
       </div>
-      <button class="iconbtn" id="reviewCloseBtn" title="Close review" aria-label="Close review">✕</button>
     </div>
 
-    <div class="review-board-wrap">
-      <div class="review-board" id="reviewBoard" role="grid" aria-label="Review board"></div>
-      <svg class="move-arrow-overlay" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-        <defs>
-          <marker id="reviewArrowhead" viewBox="0 0 10 10" refX="5.5" refY="5" markerWidth="3.4" markerHeight="3.4" orient="auto-start-reverse">
-            <path class="arrow-fill" d="M0,0 L10,5 L0,10 Z"></path>
-          </marker>
-        </defs>
-        <line id="reviewArrowLine" class="arrow-line" x1="0" y1="0" x2="0" y2="0" marker-end="url(#reviewArrowhead)"></line>
-      </svg>
+    <div class="card review-summary-card">
+      <div class="review-summary-row" id="reviewSummaryRow">
+        <div class="review-summary-stat">
+          <div class="review-summary-num" id="reviewOpeningName">—</div>
+          <div class="review-summary-label">Opening</div>
+        </div>
+        <div class="review-summary-stat">
+          <div class="review-summary-num" id="reviewAccuracyWhite">—</div>
+          <div class="review-summary-label">White accuracy</div>
+        </div>
+        <div class="review-summary-stat">
+          <div class="review-summary-num" id="reviewAccuracyBlack">—</div>
+          <div class="review-summary-label">Black accuracy</div>
+        </div>
+      </div>
+      <div class="review-summary-row" id="reviewTimeRow" style="display:none; margin-top:10px;">
+        <div class="review-summary-stat">
+          <div class="review-summary-num" id="reviewTimeWhite">—</div>
+          <div class="review-summary-label">White avg. think time</div>
+        </div>
+        <div class="review-summary-stat">
+          <div class="review-summary-num" id="reviewTimeBlack">—</div>
+          <div class="review-summary-label">Black avg. think time</div>
+        </div>
+      </div>
+      <div class="review-tally-row" id="reviewTallyRow"></div>
+      <button class="btn primary" id="analyzeGameBtn" style="width:100%; margin-top:12px;">Analyze This Game</button>
+      <div class="review-progress-wrap" id="reviewProgressWrap" style="display:none;">
+        <div class="review-progress-track"><div class="review-progress-fill" id="reviewProgressFill"></div></div>
+        <div class="review-progress-label" id="reviewProgressLabel">Analyzing move 1 of 40…</div>
+      </div>
     </div>
 
-    <div class="review-move-label" id="reviewMoveLabel">Start of game</div>
+    <div class="review-main-grid">
+      <div class="review-board-col">
+        <div class="review-board-wrap">
+          <div class="review-board" id="reviewBoard" role="grid" aria-label="Review board"></div>
+          <svg class="move-arrow-overlay" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+            <defs>
+              <marker id="reviewArrowhead" viewBox="0 0 10 10" refX="5.5" refY="5" markerWidth="3.4" markerHeight="3.4" orient="auto-start-reverse">
+                <path class="arrow-fill" d="M0,0 L10,5 L0,10 Z"></path>
+              </marker>
+              <marker id="reviewBestArrowhead" viewBox="0 0 10 10" refX="5.5" refY="5" markerWidth="3.4" markerHeight="3.4" orient="auto-start-reverse">
+                <path class="arrow-fill-best" d="M0,0 L10,5 L0,10 Z"></path>
+              </marker>
+            </defs>
+            <line id="reviewArrowLine" class="arrow-line" x1="0" y1="0" x2="0" y2="0" marker-end="url(#reviewArrowhead)"></line>
+            <line id="reviewBestArrowLine" class="arrow-line-best" x1="0" y1="0" x2="0" y2="0" marker-end="url(#reviewBestArrowhead)"></line>
+          </svg>
+        </div>
 
-    <input type="range" id="reviewSlider" class="review-slider" min="0" max="0" step="1" value="0">
+        <div class="review-move-label-row">
+          <span class="move-badge" id="reviewMoveBadge" style="display:none;"></span>
+          <span class="review-move-label" id="reviewMoveLabel">Start of game</span>
+        </div>
 
-    <div class="review-controls">
-      <button class="btn small" id="reviewToStartBtn" title="Jump to start">⏮</button>
-      <button class="btn small" id="reviewStepBackBtn" title="Step back">◀</button>
-      <button class="btn primary" id="reviewPlayBtn" title="Play">▶ Play</button>
-      <button class="btn small" id="reviewStepFwdBtn" title="Step forward">▶</button>
-      <button class="btn small" id="reviewToEndBtn" title="Jump to end">⏭</button>
-    </div>
+        <input type="range" id="reviewSlider" class="review-slider" min="0" max="0" step="1" value="0">
 
-    <div class="review-speed-row">
-      <span class="review-speed-label">Speed</span>
-      <div class="segmented review-speed-segmented" id="reviewSpeedSelector">
-        <button data-speed="1800">Slow</button>
-        <button data-speed="1100" class="active">Normal</button>
-        <button data-speed="600">Fast</button>
+        <div class="review-controls">
+          <button class="btn small" id="reviewToStartBtn" title="Jump to start">⏮</button>
+          <button class="btn small" id="reviewStepBackBtn" title="Step back">◀</button>
+          <button class="btn primary" id="reviewPlayBtn" title="Play">▶ Play</button>
+          <button class="btn small" id="reviewStepFwdBtn" title="Step forward">▶</button>
+          <button class="btn small" id="reviewToEndBtn" title="Jump to end">⏭</button>
+        </div>
+
+        <div class="review-speed-row">
+          <span class="review-speed-label">Speed</span>
+          <div class="segmented review-speed-segmented" id="reviewSpeedSelector">
+            <button data-speed="1800">Slow</button>
+            <button data-speed="1100" class="active">Normal</button>
+            <button data-speed="600">Fast</button>
+          </div>
+        </div>
+
+        <div class="coach-panel" id="coachPanel" style="display:none;">
+          <div class="coach-panel-head">
+            <span class="move-badge" id="coachBadge"></span>
+            <span class="coach-panel-title" id="coachTitle"></span>
+          </div>
+          <p class="coach-panel-text" id="coachText"></p>
+          <div class="coach-panel-actions">
+            <button class="btn small" id="coachShowBestBtn">Show best move</button>
+            <button class="btn small ghost" id="coachPracticeBtn">Practice this position</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="review-side-col">
+        <div class="card eval-graph-card">
+          <h2>Evaluation</h2>
+          <svg id="evalGraph" class="eval-graph" viewBox="0 0 300 90" preserveAspectRatio="none"></svg>
+        </div>
+        <div class="card">
+          <h2>Moves</h2>
+          <div class="moves-box review-moves-box"><table class="moves-table" id="reviewMovesTable"></table></div>
+        </div>
       </div>
     </div>
   </div>
-</div>
+</section>
 
 <script>
 (function(){
@@ -1129,6 +1362,427 @@ function chooseAIMove(state, elo) {
     if (Date.now() > deadline) break;
   }
   return best || moves[0];
+}
+
+/* ============================================================
+   GAME ANALYSIS ENGINE — post-game only, not used for live play.
+   Deeper + quiescence search + opening-book aware, so it can reliably
+   classify moves and explain mistakes without flagging normal theory.
+   ============================================================ */
+// A curated (not exhaustive) opening book. Each entry is a sequence of
+// moves in "from-to" square form (e.g. "e2e4"), matched against the game's
+// actual moves. Purpose is twofold:
+//   1. Moves that match a known line are marked "book" and excluded from
+//      blunder/mistake grading — our engine's opinion on quiet, well-known
+//      theory isn't trustworthy enough to grade against (confirmed: without
+//      this, a mainline Ruy Lopez was flagged as several "mistakes").
+//   2. The longest matching line's name is shown to the user ("You're
+//      playing the Ruy Lopez, Closed Variation").
+// The book is intentionally shallow-to-moderate depth (6-12 ply) — deep
+// enough to cover the highest-risk false-positive window, not a full
+// ECO database.
+
+const OPENING_BOOK = [
+  // ---- Open games (1.e4 e5) ----
+  { name: 'Italian Game', moves: ['e2e4','e7e5','g1f3','b8c6','f1c4'] },
+  { name: 'Italian Game, Giuoco Piano', moves: ['e2e4','e7e5','g1f3','b8c6','f1c4','f8c5'] },
+  { name: 'Two Knights Defense', moves: ['e2e4','e7e5','g1f3','b8c6','f1c4','g8f6'] },
+  { name: 'Ruy Lopez', moves: ['e2e4','e7e5','g1f3','b8c6','f1b5'] },
+  { name: 'Ruy Lopez, Morphy Defense', moves: ['e2e4','e7e5','g1f3','b8c6','f1b5','a7a6'] },
+  { name: 'Ruy Lopez, Closed', moves: ['e2e4','e7e5','g1f3','b8c6','f1b5','a7a6','b5a4','g8f6','e1g1','f8e7','f1e1','b7b5','a4b3','d7d6','c2c3','e8g8'] },
+  { name: 'Ruy Lopez, Berlin Defense', moves: ['e2e4','e7e5','g1f3','b8c6','f1b5','g8f6'] },
+  { name: 'Ruy Lopez, Exchange Variation', moves: ['e2e4','e7e5','g1f3','b8c6','f1b5','a7a6','b5c6'] },
+  { name: 'Ruy Lopez, Exchange Variation', moves: ['e2e4','e7e5','g1f3','b8c6','f1b5','a7a6','b5c6','d7c6'] },
+  { name: 'Ruy Lopez, Exchange Variation', moves: ['e2e4','e7e5','g1f3','b8c6','f1b5','a7a6','b5c6','b7c6'] },
+  { name: 'Scotch Game', moves: ['e2e4','e7e5','g1f3','b8c6','d2d4'] },
+  { name: 'Four Knights Game', moves: ['e2e4','e7e5','g1f3','b8c6','b1c3','g8f6'] },
+  { name: 'Vienna Game', moves: ['e2e4','e7e5','b1c3'] },
+  { name: "King's Gambit", moves: ['e2e4','e7e5','f2f4'] },
+  { name: 'Petrov Defense', moves: ['e2e4','e7e5','g1f3','g8f6'] },
+  { name: 'Philidor Defense', moves: ['e2e4','e7e5','g1f3','d7d6'] },
+  { name: 'Bishop\'s Opening', moves: ['e2e4','e7e5','f1c4'] },
+
+  // ---- Sicilian Defense (1.e4 c5) ----
+  { name: 'Sicilian Defense', moves: ['e2e4','c7c5'] },
+  { name: 'Sicilian, Najdorf', moves: ['e2e4','c7c5','g1f3','d7d6','d2d4','c5d4','f3d4','g8f6','b1c3','a7a6'] },
+  { name: 'Sicilian, Dragon', moves: ['e2e4','c7c5','g1f3','d7d6','d2d4','c5d4','f3d4','g8f6','b1c3','g7g6'] },
+  { name: 'Sicilian, Classical', moves: ['e2e4','c7c5','g1f3','b8c6','d2d4','c5d4','f3d4','g8f6','b1c3'] },
+  { name: 'Sicilian, Alapin', moves: ['e2e4','c7c5','c2c3'] },
+  { name: 'Sicilian, Closed', moves: ['e2e4','c7c5','b1c3'] },
+
+  // ---- Other 1.e4 replies ----
+  { name: 'French Defense', moves: ['e2e4','e7e6'] },
+  { name: 'French Defense, Advance', moves: ['e2e4','e7e6','d2d4','d7d5','e4e5'] },
+  { name: 'French Defense, Winawer', moves: ['e2e4','e7e6','d2d4','d7d5','b1c3','f8b4'] },
+  { name: 'Caro-Kann Defense', moves: ['e2e4','c7c6'] },
+  { name: 'Caro-Kann, Classical', moves: ['e2e4','c7c6','d2d4','d7d5','b1c3','d5e4','c3e4','c8f5'] },
+  { name: 'Scandinavian Defense', moves: ['e2e4','d7d5'] },
+  { name: "Pirc Defense", moves: ['e2e4','d7d6','d2d4','g8f6','b1c3','g7g6'] },
+  { name: 'Modern Defense', moves: ['e2e4','g7g6'] },
+  { name: "Alekhine's Defense", moves: ['e2e4','g8f6'] },
+
+  // ---- 1.d4 openings ----
+  { name: "Queen's Gambit", moves: ['d2d4','d7d5','c2c4'] },
+  { name: "Queen's Gambit Declined", moves: ['d2d4','d7d5','c2c4','e7e6'] },
+  { name: "Queen's Gambit Accepted", moves: ['d2d4','d7d5','c2c4','d5c4'] },
+  { name: 'Slav Defense', moves: ['d2d4','d7d5','c2c4','c7c6'] },
+  { name: "King's Indian Defense", moves: ['d2d4','g8f6','c2c4','g7g6'] },
+  { name: 'Nimzo-Indian Defense', moves: ['d2d4','g8f6','c2c4','e7e6','b1c3','f8b4'] },
+  { name: 'Queen\'s Indian Defense', moves: ['d2d4','g8f6','c2c4','e7e6','g1f3','b7b6'] },
+  { name: 'Grünfeld Defense', moves: ['d2d4','g8f6','c2c4','g7g6','b1c3','d7d5'] },
+  { name: "Dutch Defense", moves: ['d2d4','f7f5'] },
+  { name: 'Benoni Defense', moves: ['d2d4','g8f6','c2c4','c7c5'] },
+  { name: 'London System', moves: ['d2d4','d7d5','c1f4'] },
+  { name: 'London System', moves: ['d2d4','g8f6','c1f4'] },
+  { name: 'Catalan Opening', moves: ['d2d4','g8f6','c2c4','e7e6','g2g3'] },
+  { name: "Trompowsky Attack", moves: ['d2d4','g8f6','c1g5'] },
+
+  // ---- Flank openings ----
+  { name: 'English Opening', moves: ['c2c4'] },
+  { name: 'English Opening, Symmetrical', moves: ['c2c4','c7c5'] },
+  { name: 'Réti Opening', moves: ['g1f3','d7d5','c2c4'] },
+  { name: "Bird's Opening", moves: ['f2f4'] },
+];
+
+// Returns { name, bookPlyCount } for the longest opening-book line that
+// matches the start of this game's moves, or null if nothing matches.
+function matchOpening(moves) {
+  let best = null;
+  for (const entry of OPENING_BOOK) {
+    if (moves.length < entry.moves.length) continue;
+    let matches = true;
+    for (let i = 0; i < entry.moves.length; i++) {
+      const uci = squareToAlg(moves[i].from) + squareToAlg(moves[i].to);
+      if (uci !== entry.moves[i]) { matches = false; break; }
+    }
+    if (matches && (!best || entry.moves.length > best.bookPlyCount)) {
+      best = { name: entry.name, bookPlyCount: entry.moves.length };
+    }
+  }
+  return best;
+}
+
+function squareToAlg(sq) {
+  const files = ['a','b','c','d','e','f','g','h'];
+  return files[sq.c] + (8 - sq.r);
+}
+
+// ============================================================
+// Quiescence search — extends the leaf evaluation through capture
+// sequences until the position is "quiet" (no immediate recaptures left).
+// Without this, a plain depth-limited search suffers badly from the
+// horizon effect: it can stop its search right after a capture and never
+// see the recapture, making completely normal moves look like blunders.
+// Confirmed empirically: without this, a mainline Ruy Lopez opening was
+// flagged as 17 consecutive "blunders" at low depth. With it, that false
+// signal disappears.
+// ============================================================
+function quiescence(state, alpha, beta, isWhiteTurn, depthLeft, deadline) {
+  if (deadline && Date.now() > deadline) return evaluateBoard(state.board);
+  const standPat = evaluateBoard(state.board);
+  if (depthLeft <= 0) return standPat;
+  if (isWhiteTurn) {
+    if (standPat >= beta) return beta;
+    if (alpha < standPat) alpha = standPat;
+  } else {
+    if (standPat <= alpha) return alpha;
+    if (beta > standPat) beta = standPat;
+  }
+  const color = isWhiteTurn ? 'w' : 'b';
+  const moves = generateLegalMoves(state, color).filter(m => m.capture);
+  if (moves.length === 0) return standPat;
+  const ordered = orderMoves(state, moves);
+  for (const mv of ordered) {
+    const ns = applyMove(state, mv);
+    const score = quiescence(ns, alpha, beta, !isWhiteTurn, depthLeft - 1, deadline);
+    if (isWhiteTurn) {
+      if (score > alpha) alpha = score;
+      if (alpha >= beta) break;
+    } else {
+      if (score < beta) beta = score;
+      if (beta <= alpha) break;
+    }
+  }
+  return isWhiteTurn ? alpha : beta;
+}
+
+// ============================================================
+// PV-returning minimax — for analysis only (not live play, which keeps
+// using the existing chooseAIMove/minimax for speed). Returns both the
+// score AND the sequence of best moves found, so we can show "here's
+// what happens if you play the better move."
+// ============================================================
+function searchWithPV(state, depth, alpha, beta, isWhiteTurn, deadline) {
+  const color = isWhiteTurn ? 'w' : 'b';
+  const moves = generateLegalMoves(state, color);
+  if (moves.length === 0) {
+    if (isKingInCheck(state, color)) return { score: isWhiteTurn ? -100000 - depth : 100000 + depth, pv: [] };
+    return { score: 0, pv: [] };
+  }
+  if (depth === 0 || (deadline && Date.now() > deadline)) {
+    return { score: quiescence(state, alpha, beta, isWhiteTurn, 4, deadline), pv: [] };
+  }
+  const ordered = orderMoves(state, moves);
+  let bestPV = [];
+  if (isWhiteTurn) {
+    let maxEval = -Infinity;
+    for (const mv of ordered) {
+      const ns = applyMove(state, mv);
+      const result = searchWithPV(ns, depth - 1, alpha, beta, false, deadline);
+      if (result.score > maxEval) { maxEval = result.score; bestPV = [mv, ...result.pv]; }
+      if (result.score > alpha) alpha = result.score;
+      if (beta <= alpha) break;
+    }
+    return { score: maxEval, pv: bestPV };
+  } else {
+    let minEval = Infinity;
+    for (const mv of ordered) {
+      const ns = applyMove(state, mv);
+      const result = searchWithPV(ns, depth - 1, alpha, beta, true, deadline);
+      if (result.score < minEval) { minEval = result.score; bestPV = [mv, ...result.pv]; }
+      if (result.score < beta) beta = result.score;
+      if (beta <= alpha) break;
+    }
+    return { score: minEval, pv: bestPV };
+  }
+}
+
+// Iterative deepening with a time budget — used for every position we analyze.
+// Returns the deepest complete result found within the budget.
+// Iterative deepening with a time budget — used for every position we analyze.
+// Depths 1-3 always run to completion with NO deadline, regardless of device
+// speed — a partially-cut-off search can produce genuinely wrong advice (this
+// was caught in testing: on a slower environment, a time cutoff mid-search
+// once caused the engine to suggest the exact move that had just lost the
+// game as the "better" alternative). Depth 4 is an opportunistic bonus, only
+// used if it completes cleanly within the time budget.
+function analyzePosition(state, maxDepth, timeBudgetMs) {
+  const isWhiteTurn = state.turn === 'w';
+  const guaranteedDepth = Math.min(3, maxDepth);
+  let best = null;
+  for (let d = 1; d <= guaranteedDepth; d++) {
+    best = searchWithPV(state, d, -Infinity, Infinity, isWhiteTurn, null);
+  }
+  const deadline = Date.now() + (timeBudgetMs || 700);
+  for (let d = guaranteedDepth + 1; d <= maxDepth; d++) {
+    if (Date.now() > deadline) break;
+    const result = searchWithPV(state, d, -Infinity, Infinity, isWhiteTurn, deadline);
+    if (Date.now() <= deadline) best = result;
+  }
+  return best || { score: evaluateBoard(state.board), pv: [] };
+}
+
+// ============================================================
+// Win-probability conversion — reuses the same logistic (base-10, /400)
+// shape already used for the app's own ELO expected-score formula, so the
+// whole app has one consistent "how much does this matter" curve. Handles
+// mate scores fine without special-casing: they just saturate near 0/100.
+// ============================================================
+function winProbFromCp(cpWhitePerspective, forColor) {
+  const whiteWinProb = 100 / (1 + Math.pow(10, -cpWhitePerspective / 400));
+  return forColor === 'w' ? whiteWinProb : 100 - whiteWinProb;
+}
+
+function isMateScore(cp) { return Math.abs(cp) > 50000; }
+
+// ============================================================
+// Move classification — win%-loss bands, not raw centipawns, so a move
+// in an already-winning position isn't over-punished (matches how
+// Lichess/Chess.com avoid the "+9 to +6 isn't really a blunder" problem).
+// ============================================================
+function classifyLoss(winProbLoss) {
+  if (winProbLoss < 1) return 'best';
+  if (winProbLoss < 3.5) return 'excellent';
+  if (winProbLoss < 7) return 'good';
+  if (winProbLoss < 10) return 'inaccuracy';
+  if (winProbLoss < 20) return 'mistake';
+  return 'blunder';
+}
+
+// ============================================================
+// "Why" detectors — reuse the same move-generation the app already trusts
+// for legality, so explanations are grounded in real attacks, not guesses.
+// ============================================================
+
+// Is any of `color`'s pieces left attacked and inadequately defended?
+// Returns the highest-value hanging piece found, or null.
+function detectHangingPiece(state, color) {
+  const board = state.board;
+  const opp = opponent(color);
+  let worst = null;
+  for (let r = 0; r < 8; r++) {
+    for (let c = 0; c < 8; c++) {
+      const p = board[r][c];
+      if (!p || p.c !== color) continue;
+      const attacked = isSquareAttacked(board, r, c, opp);
+      if (!attacked) continue;
+      const defended = isSquareAttacked(board, r, c, color);
+      const value = PIECE_VALUE[p.t];
+      if (!defended && value > PIECE_VALUE.P - 1) {
+        if (!worst || value > worst.value) worst = { r, c, t: p.t, value };
+      }
+    }
+  }
+  return worst;
+}
+
+// Does any single opponent piece (after the move) attack 2+ of `color`'s
+// pieces worth more than a pawn? A generalized fork check (not just knights).
+function detectForkAgainst(state, color) {
+  const board = state.board;
+  const opp = opponent(color);
+  for (let r = 0; r < 8; r++) {
+    for (let c = 0; c < 8; c++) {
+      const p = board[r][c];
+      if (!p || p.c !== opp) continue;
+      const targets = [];
+      const pseudo = pseudoMovesForSquare(state, r, c);
+      for (const mv of pseudo) {
+        const target = board[mv.to.r][mv.to.c];
+        if (target && target.c === color && (target.t === 'K' || PIECE_VALUE[target.t] > PIECE_VALUE.P)) {
+          targets.push({ r: mv.to.r, c: mv.to.c, t: target.t });
+        }
+      }
+      if (targets.length >= 2) return { from: { r, c }, t: p.t, targets };
+    }
+  }
+  return null;
+}
+
+// ============================================================
+// Per-move analysis — shared by the synchronous analyzeGame (used in
+// tests) and the chunked/async version the app actually calls, which
+// yields between moves so the UI never freezes during a full-game pass.
+// ============================================================
+// Buckets a recorded think-time into a rough category used for the time-usage
+// commentary in the coach panel and the Review summary. Deliberately simple,
+// fixed thresholds rather than something clock-format-aware — good enough to
+// separate "rushed" from "took their time" without overfitting.
+function timeCategoryFor(ms) {
+  if (ms === null || ms === undefined) return null;
+  if (ms < 5000) return 'rushed';
+  if (ms > 45000) return 'slow';
+  return 'normal';
+}
+function formatDuration(ms) {
+  if (ms === null || ms === undefined) return null;
+  const s = Math.round(ms / 1000);
+  if (s < 60) return s + 's';
+  return Math.floor(s / 60) + 'm ' + (s % 60) + 's';
+}
+
+function analyzeOneMove(before, after, mover, maxDepth, timeBudgetMs, timeSpentMs) {
+  const searchBefore = analyzePosition(before, maxDepth, timeBudgetMs);
+  const searchAfter = analyzePosition(after, maxDepth, timeBudgetMs);
+
+  const winProbBefore = winProbFromCp(searchBefore.score, mover);
+  const winProbAfter = winProbFromCp(searchAfter.score, mover);
+  const loss = Math.max(0, winProbBefore - winProbAfter);
+
+  let classification = classifyLoss(loss);
+
+  const bestWasDecisive = isMateScore(searchBefore.score) &&
+    (mover === 'w' ? searchBefore.score > 0 : searchBefore.score < 0);
+  const actualWasDecisive = isMateScore(searchAfter.score) &&
+    (mover === 'w' ? searchAfter.score > 0 : searchAfter.score < 0);
+  if (bestWasDecisive && !actualWasDecisive && (classification === 'mistake' || classification === 'blunder')) {
+    classification = 'miss';
+  }
+
+  let tag = null;
+  if (classification !== 'best' && classification !== 'excellent' && classification !== 'good') {
+    const opponentHasMateNext = isMateScore(searchAfter.score) &&
+      (mover === 'w' ? searchAfter.score < 0 : searchAfter.score > 0);
+    const hanging = detectHangingPiece(after, mover);
+    const fork = detectForkAgainst(after, mover);
+    if (opponentHasMateNext) tag = { type: 'allows-mate' };
+    else if (bestWasDecisive && !actualWasDecisive) tag = { type: 'missed-mate' };
+    else if (hanging) tag = { type: 'hanging-piece', piece: hanging.t, square: squareName(hanging.r, hanging.c) };
+    else if (fork) tag = { type: 'fork', attacker: fork.t, targets: fork.targets.map(x => x.t) };
+    else tag = { type: 'better-move-available' };
+  }
+
+  const bestMove = searchBefore.pv[0] || null;
+  return {
+    color: mover, classification, winProbLoss: Math.round(loss * 10) / 10,
+    evalBefore: searchBefore.score, evalAfter: searchAfter.score,
+    bestMove: bestMove ? { from: bestMove.from, to: bestMove.to, san: sanForMove(before, bestMove) } : null,
+    bestLine: searchBefore.pv.slice(0, 4), tag,
+    timeSpentMs: (timeSpentMs === undefined ? null : timeSpentMs),
+    timeCategory: timeCategoryFor(timeSpentMs),
+  };
+}
+
+function analyzeGame(moves, opts) {
+  opts = opts || {};
+  const maxDepth = opts.maxDepth || 4;
+  const timeBudgetMs = opts.timeBudgetMs || 700;
+
+  const opening = matchOpening(moves);
+  const bookPlyCount = opening ? opening.bookPlyCount : 0;
+
+  let state = createInitialState();
+  const positions = [state];
+  for (const m of moves) {
+    state = applyMove(state, { from: m.from, to: m.to, promotion: m.promotion || undefined, castle: m.castle || undefined, enPassant: m.enPassant || undefined, capture: m.capture });
+    positions.push(state);
+  }
+
+  const results = [];
+  for (let i = 0; i < moves.length; i++) {
+    if (i < bookPlyCount) {
+      results.push({ moveIndex: i, color: moves[i].color, classification: 'book', winProbLoss: 0, evalBefore: null, evalAfter: null, bestMove: null, bestLine: [], tag: null, timeSpentMs: moves[i].timeSpentMs === undefined ? null : moves[i].timeSpentMs, timeCategory: timeCategoryFor(moves[i].timeSpentMs) });
+      continue;
+    }
+    const result = analyzeOneMove(positions[i], positions[i + 1], moves[i].color, maxDepth, timeBudgetMs, moves[i].timeSpentMs);
+    result.moveIndex = i;
+    results.push(result);
+  }
+  return { moves: results, opening: opening ? opening.name : null };
+}
+
+// Chunked/async version: identical logic, but analyzes one move per
+// event-loop tick (via setTimeout) so the browser can repaint a progress
+// bar and stay responsive during what can be a many-second pass.
+// onProgress(done, total) fires after each move; onComplete(result) fires
+// at the end. Returns a controller object with .cancel().
+function analyzeGameAsync(moves, opts, onProgress, onComplete) {
+  opts = opts || {};
+  const maxDepth = opts.maxDepth || 4;
+  const timeBudgetMs = opts.timeBudgetMs || 500;
+
+  const opening = matchOpening(moves);
+  const bookPlyCount = opening ? opening.bookPlyCount : 0;
+
+  let state = createInitialState();
+  const positions = [state];
+  for (const m of moves) {
+    state = applyMove(state, { from: m.from, to: m.to, promotion: m.promotion || undefined, castle: m.castle || undefined, enPassant: m.enPassant || undefined, capture: m.capture });
+    positions.push(state);
+  }
+
+  const results = [];
+  let i = 0;
+  let cancelled = false;
+  function step() {
+    if (cancelled) return;
+    if (i >= moves.length) {
+      onComplete({ moves: results, opening: opening ? opening.name : null });
+      return;
+    }
+    if (i < bookPlyCount) {
+      results.push({ moveIndex: i, color: moves[i].color, classification: 'book', winProbLoss: 0, evalBefore: null, evalAfter: null, bestMove: null, bestLine: [], tag: null, timeSpentMs: moves[i].timeSpentMs === undefined ? null : moves[i].timeSpentMs, timeCategory: timeCategoryFor(moves[i].timeSpentMs) });
+    } else {
+      const result = analyzeOneMove(positions[i], positions[i + 1], moves[i].color, maxDepth, timeBudgetMs, moves[i].timeSpentMs);
+      result.moveIndex = i;
+      results.push(result);
+    }
+    i++;
+    onProgress(i, moves.length);
+    setTimeout(step, 0);
+  }
+  setTimeout(step, 0);
+  return { cancel: () => { cancelled = true; } };
 }
 
 /* ============================================================
@@ -1528,10 +2182,14 @@ document.getElementById('promoChoices').addEventListener('click', (e) => {
 
 function commitMove(move, opts) {
   opts = opts || {};
+  setReviewArrow('hintArrowLine', null, 0);
+  if (hintTimeoutId) { clearTimeout(hintTimeoutId); hintTimeoutId = null; }
   const san = sanForMove(app.state, move);
   const mover = app.state.turn;
   const captured = move.capture;
   const nextState = applyMove(app.state, move);
+  const timeSpentMs = app.moveStartTime ? Math.max(0, Date.now() - app.moveStartTime) : null;
+  app.moveStartTime = Date.now(); // the clock starts now for whoever moves next
 
   if (app.clock.enabled) { app.clock[mover] += app.clock.inc; }
 
@@ -1541,7 +2199,7 @@ function commitMove(move, opts) {
   app.moveHistory.push({
     from: move.from, to: move.to,
     promotion: move.promotion || null, castle: move.castle || null, enPassant: !!move.enPassant,
-    capture: !!move.capture, san, color: mover,
+    capture: !!move.capture, san, color: mover, timeSpentMs,
   });
   app.stateStack.push(nextState);
 
@@ -1779,7 +2437,7 @@ function saveGameLogEntry(title, desc) {
     moveCount: app.sanHistory.length,
     moves: app.moveHistory.map(m => ({
       from: m.from, to: m.to, promotion: m.promotion, castle: m.castle, enPassant: m.enPassant,
-      capture: m.capture, san: m.san, color: m.color,
+      capture: m.capture, san: m.san, color: m.color, timeSpentMs: m.timeSpentMs,
     })),
   });
   gameLog = gameLog.slice(0, 20);
@@ -1836,7 +2494,27 @@ let review = {
   playing: false,
   timerId: null,
   speed: 1100,
+  analysis: null,       // cached { moves: [...], opening } once "Analyze This Game" has run
+  analysisController: null,
+  previewingBest: false, // true while the "Show best move" preview is on screen
 };
+
+const ANALYSIS_CACHE_KEY = 'sq64_analysis_v1';
+function loadAnalysisCache() {
+  try { const raw = localStorage.getItem(ANALYSIS_CACHE_KEY); if (raw) return JSON.parse(raw); } catch (e) {}
+  return {};
+}
+function saveAnalysisCache(cache) {
+  try { localStorage.setItem(ANALYSIS_CACHE_KEY, JSON.stringify(cache)); } catch (e) {}
+}
+let analysisCache = loadAnalysisCache();
+
+const CLASSIFICATION_LABEL = {
+  book: 'Book', best: 'Best', excellent: 'Excellent', good: 'Good',
+  inaccuracy: 'Inaccuracy', mistake: 'Mistake', blunder: 'Blunder', miss: 'Miss',
+};
+const PIECE_FULL_NAME = { P: 'pawn', N: 'knight', B: 'bishop', R: 'rook', Q: 'queen', K: 'king' };
+const FLAGGED_TIERS = ['inaccuracy', 'mistake', 'blunder', 'miss'];
 
 function renderGameLog() {
   const list = document.getElementById('gameLogList');
@@ -1846,9 +2524,10 @@ function renderGameLog() {
     const info = document.createElement('div');
     info.className = 'game-log-entry-info';
     const modeLabel = entry.mode === '2p' ? 'Two Player' : entry.mode === 'adaptive' ? 'Adaptive AI' : 'Vs Computer';
+    const analyzedTag = analysisCache[entry.id] ? ' · Analyzed' : '';
     info.innerHTML =
       '<div class="game-log-entry-title">' + entry.title + '</div>' +
-      '<div class="game-log-entry-meta">' + formatDisplayDate(entry.date) + ' · ' + modeLabel + ' · ' + entry.moveCount + ' moves</div>';
+      '<div class="game-log-entry-meta">' + formatDisplayDate(entry.date) + ' · ' + modeLabel + ' · ' + entry.moveCount + ' moves' + analyzedTag + '</div>';
     const btn = document.createElement('button');
     btn.className = 'btn small';
     btn.textContent = 'Review';
@@ -1875,9 +2554,12 @@ function openReview(entryId) {
   const entry = gameLog.find(g => g.id === entryId);
   if (!entry) return;
   stopReviewPlayback();
+  if (review.analysisController) { review.analysisController.cancel(); review.analysisController = null; }
   review.entry = entry;
   review.states = precomputeReviewStates(entry.moves);
   review.index = 0;
+  review.previewingBest = false;
+  review.analysis = analysisCache[entryId] || null;
 
   document.getElementById('reviewTitle').textContent = entry.title;
   document.getElementById('reviewSubtitle').textContent =
@@ -1886,14 +2568,21 @@ function openReview(entryId) {
   slider.max = String(entry.moves.length);
   slider.value = '0';
 
+  document.getElementById('reviewProgressWrap').style.display = 'none';
+  document.getElementById('analyzeGameBtn').style.display = review.analysis ? 'none' : 'block';
+
   buildReviewBoardDom();
   renderReviewStep();
-  document.getElementById('reviewModal').classList.add('open');
+  renderReviewSummary();
+  renderReviewMovesTable();
+  renderEvalGraph();
+  showScreen('review');
 }
 
 function closeReview() {
   stopReviewPlayback();
-  document.getElementById('reviewModal').classList.remove('open');
+  if (review.analysisController) { review.analysisController.cancel(); review.analysisController = null; }
+  showScreen('play');
 }
 
 function stopReviewPlayback() {
@@ -1913,28 +2602,25 @@ function buildReviewBoardDom() {
   }
 }
 
-function renderReviewStep() {
+// Draws a given position onto the review board. Shared by the normal
+// step view and the "show best move" preview, so both stay pixel-identical.
+function drawReviewPosition(state, opts) {
+  opts = opts || {};
   const boardEl = document.getElementById('reviewBoard');
-  const state = review.states[review.index];
-  const lastMove = review.index > 0 ? review.entry.moves[review.index - 1] : null;
   const kingInCheckPos = isKingInCheck(state, state.turn) ? findKing(state.board, state.turn) : null;
-  const isFinalStep = review.index === review.entry.moves.length;
-  const isCheckmateEnding = isFinalStep && review.entry.title === 'Checkmate';
-
   for (let r = 0; r < 8; r++) {
     for (let c = 0; c < 8; c++) {
       const el = boardEl.children[r * 8 + c];
       el.className = 'square ' + (((r + c) % 2 === 0) ? 'light' : 'dark');
       el.innerHTML = '';
-      if (lastMove && ((lastMove.from.r === r && lastMove.from.c === c) || (lastMove.to.r === r && lastMove.to.c === c))) {
+      if (opts.lastMove && ((opts.lastMove.from.r === r && opts.lastMove.from.c === c) || (opts.lastMove.to.r === r && opts.lastMove.to.c === c))) {
         el.classList.add('last-move');
       }
       if (kingInCheckPos && kingInCheckPos.r === r && kingInCheckPos.c === c) el.classList.add('in-check');
-
       const piece = state.board[r][c];
       if (piece) {
         const span = document.createElement('span');
-        const isBrokenHere = isCheckmateEnding && piece.t === 'K' && kingInCheckPos && kingInCheckPos.r === r && kingInCheckPos.c === c;
+        const isBrokenHere = opts.brokenAt && opts.brokenAt.r === r && opts.brokenAt.c === c;
         span.className = 'piece ' + (piece.c === 'w' ? 'white' : 'black') + (isBrokenHere ? ' broken' : '');
         if (isBrokenHere) span.innerHTML = '<svg viewBox="0 0 100 100">' + BROKEN_KING_SVG + '</svg>';
         else setPieceContent(span, piece.t);
@@ -1942,18 +2628,35 @@ function renderReviewStep() {
       }
     }
   }
+}
 
-  const line = document.getElementById('reviewArrowLine');
-  if (!lastMove) {
-    line.style.opacity = 0;
-  } else {
-    const from = { x: (lastMove.from.c + 0.5) / 8 * 100, y: (lastMove.from.r + 0.5) / 8 * 100 };
-    const to = { x: (lastMove.to.c + 0.5) / 8 * 100, y: (lastMove.to.r + 0.5) / 8 * 100 };
-    const dx = to.x - from.x, dy = to.y - from.y, dist = Math.hypot(dx, dy) || 1, pull = 5;
-    line.setAttribute('x1', from.x); line.setAttribute('y1', from.y);
-    line.setAttribute('x2', to.x - (dx / dist) * pull); line.setAttribute('y2', to.y - (dy / dist) * pull);
-    line.style.opacity = 0.9;
-  }
+function setReviewArrow(lineId, move, opacity) {
+  const line = document.getElementById(lineId);
+  if (!move) { line.style.opacity = 0; return; }
+  const from = { x: (move.from.c + 0.5) / 8 * 100, y: (move.from.r + 0.5) / 8 * 100 };
+  const to = { x: (move.to.c + 0.5) / 8 * 100, y: (move.to.r + 0.5) / 8 * 100 };
+  const dx = to.x - from.x, dy = to.y - from.y, dist = Math.hypot(dx, dy) || 1, pull = 5;
+  line.setAttribute('x1', from.x); line.setAttribute('y1', from.y);
+  line.setAttribute('x2', to.x - (dx / dist) * pull); line.setAttribute('y2', to.y - (dy / dist) * pull);
+  line.style.opacity = opacity;
+}
+
+function renderReviewStep() {
+  review.previewingBest = false;
+  document.getElementById('coachShowBestBtn').textContent = 'Show best move';
+
+  const state = review.states[review.index];
+  const lastMove = review.index > 0 ? review.entry.moves[review.index - 1] : null;
+  const isFinalStep = review.index === review.entry.moves.length;
+  const isCheckmateEnding = isFinalStep && review.entry.title === 'Checkmate';
+  const kingInCheckPos = isKingInCheck(state, state.turn) ? findKing(state.board, state.turn) : null;
+
+  drawReviewPosition(state, {
+    lastMove,
+    brokenAt: (isCheckmateEnding && kingInCheckPos) ? kingInCheckPos : null,
+  });
+  setReviewArrow('reviewArrowLine', lastMove, 0.9);
+  setReviewArrow('reviewBestArrowLine', null, 0);
 
   const label = document.getElementById('reviewMoveLabel');
   if (review.index === 0) {
@@ -1969,6 +2672,101 @@ function renderReviewStep() {
   document.getElementById('reviewStepFwdBtn').disabled = review.index === review.entry.moves.length;
   document.getElementById('reviewToStartBtn').disabled = review.index === 0;
   document.getElementById('reviewToEndBtn').disabled = review.index === review.entry.moves.length;
+
+  renderMoveBadgeAndCoach();
+  highlightCurrentMoveInTable();
+}
+
+function renderMoveBadgeAndCoach() {
+  const badgeEl = document.getElementById('reviewMoveBadge');
+  const coachEl = document.getElementById('coachPanel');
+  const moveAnalysis = (review.index > 0 && review.analysis) ? review.analysis.moves[review.index - 1] : null;
+
+  if (!moveAnalysis) {
+    badgeEl.style.display = 'none';
+    coachEl.style.display = 'none';
+    return;
+  }
+
+  badgeEl.style.display = 'inline-flex';
+  badgeEl.className = 'move-badge ' + moveAnalysis.classification;
+  badgeEl.textContent = CLASSIFICATION_LABEL[moveAnalysis.classification];
+
+  if (FLAGGED_TIERS.includes(moveAnalysis.classification)) {
+    coachEl.style.display = 'block';
+    document.getElementById('coachBadge').className = 'move-badge ' + moveAnalysis.classification;
+    document.getElementById('coachBadge').textContent = CLASSIFICATION_LABEL[moveAnalysis.classification];
+    const playedMove = review.entry.moves[review.index - 1];
+    document.getElementById('coachTitle').textContent = coachTitleFor(moveAnalysis);
+    document.getElementById('coachText').textContent = coachExplanationFor(moveAnalysis, playedMove);
+    document.getElementById('coachShowBestBtn').style.display = moveAnalysis.bestMove ? 'inline-block' : 'none';
+  } else {
+    coachEl.style.display = 'none';
+  }
+}
+
+function coachTitleFor(m) {
+  if (!m.tag) return 'A stronger move was available';
+  switch (m.tag.type) {
+    case 'allows-mate': return 'This allows a forced checkmate';
+    case 'missed-mate': return 'A forced checkmate was missed';
+    case 'hanging-piece': return 'This leaves a piece hanging';
+    case 'fork': return 'This walks into a fork';
+    default: return 'A stronger move was available';
+  }
+}
+function timeContextSentence(m) {
+  if (!m.timeCategory) return '';
+  if (m.timeCategory === 'rushed') {
+    return ' This one only took ' + formatDuration(m.timeSpentMs) + ' — worth slowing down at moments like this.';
+  }
+  if (m.timeCategory === 'slow') {
+    return ' ' + formatDuration(m.timeSpentMs) + ' was spent here, so this looks more like a calculation gap than rushing.';
+  }
+  return '';
+}
+function coachExplanationFor(m, playedMove) {
+  const bestSan = m.bestMove ? m.bestMove.san : null;
+  const mover = m.color === 'w' ? 'White' : 'Black';
+  const opp = m.color === 'w' ? 'Black' : 'White';
+  let base;
+  if (m.tag) {
+    if (m.tag.type === 'allows-mate') {
+      base = 'After ' + playedMove.san + ', ' + opp + ' has a forced checkmate.' + (bestSan ? (' ' + bestSan + ' kept the position safe.') : '');
+    } else if (m.tag.type === 'missed-mate') {
+      base = mover + ' had a forced checkmate available' + (bestSan ? (' starting with ' + bestSan) : '') + ' and played something else instead.';
+    } else if (m.tag.type === 'hanging-piece') {
+      base = 'The ' + PIECE_FULL_NAME[m.tag.piece] + ' on ' + m.tag.square + ' is now attacked and undefended — ' + opp + ' can simply capture it for free.' + (bestSan ? (' ' + bestSan + ' avoided this.') : '');
+    } else if (m.tag.type === 'fork') {
+      base = opp + "'s " + PIECE_FULL_NAME[m.tag.attacker] + ' now attacks two pieces at once — only one can be saved.' + (bestSan ? (' ' + bestSan + ' avoided this.') : '');
+    }
+  }
+  if (!base) {
+    base = bestSan ? (bestSan + ' would have been noticeably stronger here (about ' + m.winProbLoss + '% of winning chances given up).') :
+      'This move gave up about ' + m.winProbLoss + '% of winning chances compared to the best option.';
+  }
+  return base + timeContextSentence(m);
+}
+
+// Shows the pre-move position with a green dashed arrow for the engine's
+// suggested move, instead of overlaying it on the (now different) current
+// board — the pieces the arrow refers to may no longer be where they were.
+function toggleBestMovePreview() {
+  const btn = document.getElementById('coachShowBestBtn');
+  const moveAnalysis = review.analysis ? review.analysis.moves[review.index - 1] : null;
+  if (!moveAnalysis || !moveAnalysis.bestMove) return;
+
+  review.previewingBest = !review.previewingBest;
+  if (review.previewingBest) {
+    const beforeState = review.states[review.index - 1];
+    drawReviewPosition(beforeState, {});
+    setReviewArrow('reviewArrowLine', null, 0);
+    setReviewArrow('reviewBestArrowLine', moveAnalysis.bestMove, 0.9);
+    document.getElementById('reviewMoveLabel').textContent = 'Instead: ' + moveAnalysis.bestMove.san;
+    btn.textContent = 'Hide best move';
+  } else {
+    renderReviewStep();
+  }
 }
 
 function reviewGoToIndex(idx, opts) {
@@ -2005,7 +2803,459 @@ function reviewTogglePlay() {
   review.timerId = setTimeout(tick, review.speed);
 }
 
-document.getElementById('reviewCloseBtn').addEventListener('click', closeReview);
+/* ---------- Analysis: summary, tallies, move list, eval graph ---------- */
+function accuracyForColor(color) {
+  if (!review.analysis) return null;
+  const relevant = review.analysis.moves.filter(m => m.color === color && m.classification !== 'book');
+  if (relevant.length === 0) return null;
+  const avgLoss = relevant.reduce((sum, m) => sum + m.winProbLoss, 0) / relevant.length;
+  return Math.max(0, Math.round((100 - avgLoss * 1.6) * 10) / 10);
+}
+
+function avgTimeForColor(color) {
+  if (!review.entry) return null;
+  const times = review.entry.moves.filter(m => m.color === color && typeof m.timeSpentMs === 'number');
+  if (times.length === 0) return null;
+  const avgMs = times.reduce((sum, m) => sum + m.timeSpentMs, 0) / times.length;
+  return formatDuration(avgMs);
+}
+
+function renderReviewSummary() {
+  document.getElementById('reviewOpeningName').textContent = review.analysis && review.analysis.opening ? review.analysis.opening : '—';
+  const accW = accuracyForColor('w');
+  const accB = accuracyForColor('b');
+  document.getElementById('reviewAccuracyWhite').textContent = accW === null ? '—' : accW + '%';
+  document.getElementById('reviewAccuracyBlack').textContent = accB === null ? '—' : accB + '%';
+
+  const timeW = avgTimeForColor('w');
+  const timeB = avgTimeForColor('b');
+  const timeRow = document.getElementById('reviewTimeRow');
+  if (timeW || timeB) {
+    timeRow.style.display = 'flex';
+    document.getElementById('reviewTimeWhite').textContent = timeW || '—';
+    document.getElementById('reviewTimeBlack').textContent = timeB || '—';
+  } else {
+    timeRow.style.display = 'none';
+  }
+
+  const tallyRow = document.getElementById('reviewTallyRow');
+  tallyRow.innerHTML = '';
+  if (!review.analysis) return;
+  const counts = {};
+  let rushedMistakes = 0;
+  review.analysis.moves.forEach(m => {
+    if (m.classification === 'book' || m.classification === 'best' || m.classification === 'excellent' || m.classification === 'good') return;
+    counts[m.classification] = (counts[m.classification] || 0) + 1;
+    if (m.timeCategory === 'rushed') rushedMistakes++;
+  });
+  ['miss', 'blunder', 'mistake', 'inaccuracy'].forEach(tier => {
+    if (!counts[tier]) return;
+    const pill = document.createElement('div');
+    pill.className = 'tally-pill';
+    pill.innerHTML = '<span class="move-badge ' + tier + '">' + CLASSIFICATION_LABEL[tier] + '</span> <b>' + counts[tier] + '</b>';
+    tallyRow.appendChild(pill);
+  });
+  if (rushedMistakes > 0) {
+    const pill = document.createElement('div');
+    pill.className = 'tally-pill';
+    pill.innerHTML = '⏱️ <b>' + rushedMistakes + '</b> played in under 5s';
+    tallyRow.appendChild(pill);
+  }
+  if (Object.keys(counts).length === 0) {
+    const pill = document.createElement('div');
+    pill.className = 'tally-pill';
+    pill.textContent = 'No mistakes flagged — nicely played!';
+    tallyRow.appendChild(pill);
+  }
+}
+
+function renderReviewMovesTable() {
+  const table = document.getElementById('reviewMovesTable');
+  table.innerHTML = '';
+  let row = null;
+  let moveNo = 1;
+  review.entry.moves.forEach((m, i) => {
+    const analysis = review.analysis ? review.analysis.moves[i] : null;
+    const cellHtml = m.san + (analysis && analysis.classification !== 'book' ? ' <span class="move-badge ' + analysis.classification + '" style="padding:1px 6px; font-size:9px; margin-left:4px;">' + CLASSIFICATION_LABEL[analysis.classification] + '</span>' : '');
+    if (m.color === 'w') {
+      row = document.createElement('tr');
+      const numTd = document.createElement('td'); numTd.textContent = moveNo + '.'; row.appendChild(numTd);
+      const wTd = document.createElement('td'); wTd.className = 'san'; wTd.innerHTML = cellHtml; wTd.dataset.idx = i + 1; row.appendChild(wTd);
+      const bTd = document.createElement('td'); bTd.className = 'san'; bTd.dataset.idx = ''; row.appendChild(bTd);
+      table.appendChild(row);
+      moveNo++;
+    } else {
+      if (!row) { row = document.createElement('tr'); const numTd = document.createElement('td'); numTd.textContent = moveNo + '.'; row.appendChild(numTd); const wTd = document.createElement('td'); wTd.className = 'san'; row.appendChild(wTd); const bTd=document.createElement('td'); bTd.className='san'; row.appendChild(bTd); table.appendChild(row); }
+      const cells = row.querySelectorAll('td.san');
+      cells[cells.length - 1].innerHTML = cellHtml;
+      cells[cells.length - 1].dataset.idx = i + 1;
+    }
+  });
+  table.querySelectorAll('td.san[data-idx]').forEach(td => {
+    if (td.dataset.idx === '') return;
+    td.addEventListener('click', () => { stopReviewPlayback(); reviewGoToIndex(Number(td.dataset.idx)); });
+  });
+}
+function highlightCurrentMoveInTable() {
+  const table = document.getElementById('reviewMovesTable');
+  table.querySelectorAll('td.san').forEach(td => td.classList.remove('current'));
+  const active = table.querySelector('td.san[data-idx="' + review.index + '"]');
+  if (active) active.classList.add('current');
+  const box = table.closest('.moves-box');
+  if (active && box) box.scrollTop = active.offsetTop - box.offsetHeight / 2;
+}
+
+function renderEvalGraph() {
+  const svg = document.getElementById('evalGraph');
+  const W = 300, H = 90;
+  if (!review.analysis) {
+    svg.innerHTML = '<text x="150" y="48" text-anchor="middle" font-size="10" fill="var(--text-dim)">Analyze this game to see the evaluation graph</text>';
+    return;
+  }
+  const n = review.analysis.moves.length;
+  if (n === 0) { svg.innerHTML = ''; return; }
+  const points = review.analysis.moves.map((m, i) => {
+    const cp = m.classification === 'book' ? (i > 0 ? lastKnownCp(i) : 0) : m.evalAfter;
+    const wp = winProbFromCp(cp === null ? 0 : cp, 'w');
+    const x = (i + 1) / n * W;
+    const y = H - (wp / 100) * H;
+    return { x, y, i, m };
+  });
+  function lastKnownCp(idx) {
+    for (let k = idx - 1; k >= 0; k--) { if (review.analysis.moves[k].evalAfter !== null && review.analysis.moves[k].evalAfter !== undefined) return review.analysis.moves[k].evalAfter; }
+    return 0;
+  }
+  const pathD = 'M 0 ' + (H / 2) + ' L ' + points.map(p => p.x.toFixed(1) + ' ' + p.y.toFixed(1)).join(' L ');
+  const areaD = pathD + ' L ' + W + ' ' + H + ' L 0 ' + H + ' Z';
+  const dots = points.filter(p => FLAGGED_TIERS.includes(p.m.classification)).map(p => {
+    const color = p.m.classification === 'blunder' ? 'var(--danger)' : p.m.classification === 'miss' ? '#d946ef' : p.m.classification === 'mistake' ? '#f97316' : '#eab308';
+    // A larger invisible circle sits behind the visible dot purely to widen
+    // the touch/click target — the small visible dot alone is too fiddly to
+    // tap accurately on a phone or tablet.
+    return '<circle cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '" r="9" fill="transparent" data-idx="' + (p.i + 1) + '" class="eval-dot eval-dot-hit"/>' +
+      '<circle cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '" r="3.2" fill="' + color + '" stroke="var(--panel)" stroke-width="1" data-idx="' + (p.i + 1) + '" class="eval-dot"/>';
+  }).join('');
+  svg.innerHTML =
+    '<line x1="0" y1="' + (H / 2) + '" x2="' + W + '" y2="' + (H / 2) + '" stroke="var(--panel-border)" stroke-width="1" stroke-dasharray="3 3"/>' +
+    '<path d="' + areaD + '" fill="color-mix(in srgb, var(--text) 8%, transparent)" stroke="none"/>' +
+    '<path d="' + pathD + '" fill="none" stroke="var(--text-dim)" stroke-width="1.6"/>' +
+    dots;
+  svg.querySelectorAll('.eval-dot').forEach(dot => {
+    dot.style.cursor = 'pointer';
+    dot.addEventListener('click', () => { stopReviewPlayback(); reviewGoToIndex(Number(dot.dataset.idx)); });
+  });
+}
+
+/* ---------- Analyze This Game ---------- */
+function startGameAnalysis() {
+  if (!review.entry) return;
+  const btn = document.getElementById('analyzeGameBtn');
+  const progressWrap = document.getElementById('reviewProgressWrap');
+  const fill = document.getElementById('reviewProgressFill');
+  const label = document.getElementById('reviewProgressLabel');
+  btn.style.display = 'none';
+  progressWrap.style.display = 'block';
+  fill.style.width = '0%';
+  label.textContent = 'Analyzing move 1 of ' + review.entry.moves.length + '…';
+
+  review.analysisController = analyzeGameAsync(
+    review.entry.moves,
+    { maxDepth: 4, timeBudgetMs: 500 },
+    (done, total) => {
+      fill.style.width = Math.round((done / total) * 100) + '%';
+      label.textContent = 'Analyzing move ' + Math.min(done + 1, total) + ' of ' + total + '…';
+    },
+    (result) => {
+      review.analysis = result;
+      analysisCache[review.entry.id] = result;
+      saveAnalysisCache(analysisCache);
+      progressWrap.style.display = 'none';
+      renderReviewSummary();
+      renderReviewMovesTable();
+      renderEvalGraph();
+      renderMoveBadgeAndCoach();
+      renderGameLog();
+      generatePuzzlesFromAnalysis(review.entry, result);
+    }
+  );
+}
+
+/* ============================================================
+   PRACTICE — puzzles generated from your own flagged mistakes,
+   reviewed on a spaced-repetition schedule.
+   ============================================================ */
+const PUZZLES_KEY = 'sq64_puzzles_v1';
+function loadPuzzles() {
+  try { const raw = localStorage.getItem(PUZZLES_KEY); if (raw) return JSON.parse(raw); } catch (e) {}
+  return [];
+}
+function savePuzzles(list) {
+  try { localStorage.setItem(PUZZLES_KEY, JSON.stringify(list)); } catch (e) {}
+}
+let puzzles = loadPuzzles();
+
+// Spaced-repetition intervals in days per level. Solving correctly advances
+// a level and pushes the due date out; solving incorrectly resets to level 0
+// and the puzzle is due again immediately (same session).
+const SRS_INTERVALS = [1, 3, 7, 16, 35];
+const SRS_MASTERED_LEVEL = SRS_INTERVALS.length;
+
+function todayISO() { return new Date().toISOString().slice(0, 10); }
+
+function generatePuzzlesFromAnalysis(entry, analysis) {
+  const states = precomputeReviewStates(entry.moves);
+  let added = 0;
+  analysis.moves.forEach((m, i) => {
+    if (!['mistake', 'blunder', 'miss'].includes(m.classification) || !m.bestMove) return;
+    const id = entry.id + '-' + i;
+    if (puzzles.some(p => p.id === id)) return;
+    puzzles.push({
+      id, gameId: entry.id, moveIndex: i,
+      state: states[i], toMove: m.color,
+      correctMove: m.bestMove, classification: m.classification, tag: m.tag,
+      playedSan: entry.moves[i].san,
+      srsLevel: 0, dueDate: todayISO(), createdDate: todayISO(),
+    });
+    added++;
+  });
+  if (added > 0) savePuzzles(puzzles);
+  renderPracticeSummary();
+  renderWeaknessDashboard();
+}
+
+function getDuePuzzles() {
+  const today = todayISO();
+  return puzzles.filter(p => p.dueDate <= today);
+}
+
+function recordPuzzleResult(puzzleId, correct) {
+  const p = puzzles.find(x => x.id === puzzleId);
+  if (!p) return;
+  if (correct) {
+    p.srsLevel = Math.min(p.srsLevel + 1, SRS_MASTERED_LEVEL);
+    const days = SRS_INTERVALS[Math.min(p.srsLevel - 1, SRS_INTERVALS.length - 1)];
+    const due = new Date();
+    due.setDate(due.getDate() + days);
+    p.dueDate = due.toISOString().slice(0, 10);
+  } else {
+    p.srsLevel = 0;
+    p.dueDate = todayISO();
+  }
+  savePuzzles(puzzles);
+}
+
+function renderPracticeSummary() {
+  const due = getDuePuzzles();
+  const mastered = puzzles.filter(p => p.srsLevel >= SRS_MASTERED_LEVEL);
+  document.getElementById('practiceDueCount').textContent = due.length;
+  document.getElementById('practiceTotalCount').textContent = puzzles.length;
+  document.getElementById('practiceMasteredCount').textContent = mastered.length;
+  const startBtn = document.getElementById('startPracticeBtn');
+  const emptyNote = document.getElementById('practiceEmptyNote');
+  if (puzzles.length === 0) {
+    startBtn.style.display = 'none';
+    emptyNote.style.display = 'block';
+  } else {
+    startBtn.style.display = 'block';
+    emptyNote.style.display = 'none';
+    startBtn.disabled = due.length === 0;
+    startBtn.textContent = due.length === 0 ? 'No puzzles due right now' : 'Start Practice Session';
+  }
+}
+
+const TAG_DISPLAY_NAME = {
+  'hanging-piece': 'Hanging pieces', 'fork': 'Forks', 'missed-mate': 'Missed forced mates',
+  'allows-mate': 'Walking into mate', 'better-move-available': 'Missed stronger moves',
+};
+function renderWeaknessDashboard() {
+  const card = document.getElementById('weaknessCard');
+  const list = document.getElementById('weaknessList');
+  const tagCounts = {};
+  let total = 0;
+  Object.values(analysisCache).forEach(analysis => {
+    analysis.moves.forEach(m => {
+      if (['mistake', 'blunder', 'miss'].includes(m.classification) && m.tag) {
+        tagCounts[m.tag.type] = (tagCounts[m.tag.type] || 0) + 1;
+        total++;
+      }
+    });
+  });
+  if (total === 0) { card.style.display = 'none'; return; }
+  card.style.display = 'block';
+  const maxCount = Math.max(...Object.values(tagCounts));
+  list.innerHTML = Object.entries(tagCounts)
+    .sort((a, b) => b[1] - a[1])
+    .map(([tag, count]) =>
+      '<div class="weakness-row"><span class="weakness-label">' + (TAG_DISPLAY_NAME[tag] || tag) + '</span>' +
+      '<span class="weakness-bar-track"><span class="weakness-bar-fill" style="width:' + Math.round(count / maxCount * 100) + '%"></span></span>' +
+      '<span class="weakness-count">' + count + '</span></div>'
+    ).join('');
+}
+
+/* ---------- Puzzle-solving session ---------- */
+let practice = {
+  queue: [], index: 0, state: null, selected: null, legalForSelected: [], solved: false, correctCount: 0,
+};
+
+function startPracticeSession() {
+  const due = getDuePuzzles();
+  if (due.length === 0) return;
+  const shuffled = due.slice().sort(() => Math.random() - 0.5);
+  practice.queue = shuffled.slice(0, 10);
+  practice.index = 0;
+  practice.correctCount = 0;
+  document.getElementById('practiceSummaryCard').style.display = 'none';
+  document.getElementById('practiceSessionEndCard').style.display = 'none';
+  document.getElementById('practiceSessionCard').style.display = 'block';
+  buildPracticeBoardDom();
+  showPracticePuzzle();
+}
+
+function buildPracticeBoardDom() {
+  const boardEl = document.getElementById('practiceBoard');
+  boardEl.innerHTML = '';
+  for (let i = 0; i < 64; i++) {
+    const sq = document.createElement('div');
+    sq.className = 'square';
+    boardEl.appendChild(sq);
+  }
+}
+
+function showPracticePuzzle() {
+  const puzzle = practice.queue[practice.index];
+  practice.state = cloneState(puzzle.state);
+  practice.selected = null;
+  practice.legalForSelected = [];
+  practice.solved = false;
+
+  document.getElementById('practiceProgress').textContent = 'Puzzle ' + (practice.index + 1) + ' of ' + practice.queue.length;
+  document.getElementById('practicePrompt').textContent = 'Find the best move for ' + (puzzle.toMove === 'w' ? 'White' : 'Black');
+  document.getElementById('practiceFeedback').style.display = 'none';
+  document.getElementById('practiceNextBtn').style.display = 'none';
+  document.getElementById('practiceSkipBtn').style.display = 'inline-block';
+  setReviewArrow('practiceArrowLine', null, 0);
+  renderPracticeBoard();
+}
+
+function renderPracticeBoard() {
+  const boardEl = document.getElementById('practiceBoard');
+  const kingInCheckPos = isKingInCheck(practice.state, practice.state.turn) ? findKing(practice.state.board, practice.state.turn) : null;
+  for (let r = 0; r < 8; r++) {
+    for (let c = 0; c < 8; c++) {
+      const el = boardEl.children[r * 8 + c];
+      el.className = 'square ' + (((r + c) % 2 === 0) ? 'light' : 'dark');
+      el.innerHTML = '';
+      if (practice.selected && practice.selected.r === r && practice.selected.c === c) el.classList.add('selected');
+      if (!practice.solved && practice.legalForSelected.some(m => m.to.r === r && m.to.c === c)) {
+        const isCap = practice.legalForSelected.some(m => m.to.r === r && m.to.c === c && m.capture);
+        el.classList.add(isCap ? 'legal-capture' : 'legal-move');
+      }
+      if (kingInCheckPos && kingInCheckPos.r === r && kingInCheckPos.c === c) el.classList.add('in-check');
+      const piece = practice.state.board[r][c];
+      if (piece) {
+        const span = document.createElement('span');
+        span.className = 'piece ' + (piece.c === 'w' ? 'white' : 'black');
+        setPieceContent(span, piece.t);
+        el.appendChild(span);
+      }
+      el.onclick = () => handlePracticeSquareClick(r, c);
+    }
+  }
+}
+
+function handlePracticeSquareClick(r, c) {
+  if (practice.solved) return;
+  const puzzle = practice.queue[practice.index];
+  if (practice.state.turn !== puzzle.toMove) return;
+  const piece = practice.state.board[r][c];
+
+  if (practice.selected) {
+    if (practice.selected.r === r && practice.selected.c === c) {
+      practice.selected = null; practice.legalForSelected = [];
+      renderPracticeBoard();
+      return;
+    }
+    const move = practice.legalForSelected.find(m => m.to.r === r && m.to.c === c);
+    if (move) {
+      submitPracticeMove(move);
+      return;
+    }
+    if (piece && piece.c === practice.state.turn) {
+      practice.selected = { r, c };
+      practice.legalForSelected = legalMovesForSquare(practice.state, r, c);
+      renderPracticeBoard();
+      return;
+    }
+    practice.selected = null; practice.legalForSelected = [];
+    renderPracticeBoard();
+    return;
+  }
+  if (piece && piece.c === practice.state.turn) {
+    practice.selected = { r, c };
+    practice.legalForSelected = legalMovesForSquare(practice.state, r, c);
+    renderPracticeBoard();
+  }
+}
+
+function submitPracticeMove(move) {
+  const puzzle = practice.queue[practice.index];
+  const isCorrect = move.from.r === puzzle.correctMove.from.r && move.from.c === puzzle.correctMove.from.c &&
+    move.to.r === puzzle.correctMove.to.r && move.to.c === puzzle.correctMove.to.c;
+  const playedSan = sanForMove(practice.state, move);
+
+  practice.state = applyMove(practice.state, move);
+  practice.selected = null; practice.legalForSelected = [];
+  practice.solved = true;
+  renderPracticeBoard();
+
+  if (isCorrect) soundMove(); else soundCapture();
+  recordPuzzleResult(puzzle.id, isCorrect);
+  if (isCorrect) practice.correctCount++;
+
+  const feedback = document.getElementById('practiceFeedback');
+  feedback.style.display = 'block';
+  feedback.innerHTML =
+    '<div class="coach-panel-head"><span class="move-badge ' + (isCorrect ? 'best' : 'blunder') + '">' + (isCorrect ? 'Correct' : 'Not quite') + '</span></div>' +
+    '<p class="coach-panel-text">' + (isCorrect
+      ? 'That\'s the move — well spotted.'
+      : ('You played ' + playedSan + '. The best move was <strong>' + puzzle.correctMove.san + '</strong> — last time, ' + puzzle.playedSan + ' was played here and it cost the game.')) +
+    '</p>';
+  if (!isCorrect) {
+    setReviewArrow('practiceArrowLine', puzzle.correctMove, 0.9);
+  }
+  document.getElementById('practiceNextBtn').style.display = 'inline-block';
+  document.getElementById('practiceSkipBtn').style.display = 'none';
+  renderPracticeSummary();
+}
+
+function practiceNext() {
+  practice.index++;
+  if (practice.index >= practice.queue.length) {
+    endPracticeSession();
+    return;
+  }
+  showPracticePuzzle();
+}
+function practiceSkip() { practiceNext(); }
+
+function endPracticeSession() {
+  document.getElementById('practiceSessionCard').style.display = 'none';
+  document.getElementById('practiceSessionEndCard').style.display = 'block';
+  document.getElementById('practiceSessionEndText').textContent =
+    'You solved ' + practice.correctCount + ' of ' + practice.queue.length + ' correctly.';
+  renderPracticeSummary();
+  renderWeaknessDashboard();
+}
+
+document.getElementById('startPracticeBtn').addEventListener('click', startPracticeSession);
+document.getElementById('practiceNextBtn').addEventListener('click', practiceNext);
+document.getElementById('practiceSkipBtn').addEventListener('click', practiceSkip);
+document.getElementById('practiceDoneBtn').addEventListener('click', () => {
+  document.getElementById('practiceSessionEndCard').style.display = 'none';
+  document.getElementById('practiceSummaryCard').style.display = 'block';
+});
+
+document.getElementById('reviewBackBtn').addEventListener('click', closeReview);
 document.getElementById('reviewToStartBtn').addEventListener('click', reviewToStart);
 document.getElementById('reviewStepBackBtn').addEventListener('click', reviewStepBack);
 document.getElementById('reviewStepFwdBtn').addEventListener('click', () => { stopReviewPlayback(); reviewStepForward(true); });
@@ -2022,17 +3272,28 @@ document.getElementById('reviewSpeedSelector').addEventListener('click', (e) => 
   btn.classList.add('active');
   review.speed = Number(btn.dataset.speed);
 });
+document.getElementById('analyzeGameBtn').addEventListener('click', startGameAnalysis);
+document.getElementById('coachShowBestBtn').addEventListener('click', toggleBestMovePreview);
+document.getElementById('coachPracticeBtn').addEventListener('click', () => {
+  if (!review.entry) return;
+  const moveAnalysis = review.analysis ? review.analysis.moves[review.index - 1] : null;
+  if (!moveAnalysis) return;
+  const beforeState = review.states[review.index - 1];
+  practicePosition(beforeState, moveAnalysis.color);
+});
 
 /* ---------- New game / setup ---------- */
-function startNewGame() {
+function startNewGame(opts) {
+  opts = opts || {};
   document.getElementById('gameOverModal').classList.remove('open');
   document.getElementById('promoModal').classList.remove('open');
   stopClockTimer();
 
-  app.state = createInitialState();
+  app.state = opts.overrideState ? cloneState(opts.overrideState) : createInitialState();
   app.stateStack = [app.state];
   app.sanHistory = [];
   app.moveHistory = [];
+  app.moveStartTime = Date.now();
   app.selected = null; app.legalForSelected = [];
   app.lastMove = null;
   app.gameOver = false;
@@ -2042,7 +3303,7 @@ function startNewGame() {
 
   const clockVal = document.getElementById('clockSelect').value;
   const parsed = parseClockSelection(clockVal);
-  app.clock.enabled = parsed.enabled;
+  app.clock.enabled = opts.overrideState ? false : parsed.enabled;
   app.clock.base = parsed.base;
   app.clock.inc = parsed.inc;
   app.clock.w = parsed.base;
@@ -2060,9 +3321,24 @@ function startNewGame() {
   // Clocks stay frozen at their starting time until the first move is made —
   // commitMove() starts the timer once that happens, not here.
 
-  if (app.mode !== '2p' && app.humanColor === 'b') {
+  if (app.mode !== '2p' && app.state.turn !== app.humanColor) {
     scheduleAIMove();
   }
+}
+
+// Loads a specific position into a live game against the AI, so the user
+// can try the move they missed and play it out. Used by the Review coach
+// panel's "Practice this position" button.
+function practicePosition(state, humanColor) {
+  app.mode = 'adaptive';
+  app.humanColor = humanColor;
+  document.querySelectorAll('#modeSelector button').forEach(b => b.classList.toggle('active', b.dataset.mode === 'adaptive'));
+  document.getElementById('eloField').style.display = 'none';
+  document.getElementById('colorField').style.display = 'block';
+  document.getElementById('colorSelect').value = humanColor;
+  document.getElementById('undoBtn').style.display = 'none';
+  showScreen('play');
+  startNewGame({ overrideState: state });
 }
 
 /* ---------- Undo (2-player mode only, to keep single-player ratings meaningful) ---------- */
@@ -2118,6 +3394,19 @@ document.getElementById('rematchBtn').addEventListener('click', startNewGame);
 document.getElementById('closeModalBtn').addEventListener('click', () => document.getElementById('gameOverModal').classList.remove('open'));
 document.getElementById('undoBtn').addEventListener('click', undoMove);
 document.getElementById('resignBtn').addEventListener('click', resignGame);
+document.getElementById('hintBtn').addEventListener('click', showHint);
+let hintTimeoutId = null;
+// An opt-in hint: shows the engine's suggested move for a few seconds. Uses
+// a quick depth so it feels instant rather than making the user wait.
+function showHint() {
+  if (app.gameOver || app.pendingPromotion) return;
+  if (app.mode !== '2p' && app.state.turn !== app.humanColor) return;
+  const result = analyzePosition(app.state, 3, 400);
+  if (!result.pv || !result.pv[0]) return;
+  setReviewArrow('hintArrowLine', result.pv[0], 0.9);
+  if (hintTimeoutId) clearTimeout(hintTimeoutId);
+  hintTimeoutId = setTimeout(() => setReviewArrow('hintArrowLine', null, 0), 4000);
+}
 document.getElementById('flipBtn').addEventListener('click', () => { app.flipped = !app.flipped; updateOrientationLabels(); renderBoard(); });
 
 document.getElementById('soundToggle').addEventListener('click', () => {
@@ -2186,7 +3475,10 @@ let diagramIdCounter = 0;
 // Renders one static, non-interactive board diagram: pieces + optional legal-move
 // dots + optional arrows. Reuses the same .square/.piece CSS as the live board so
 // diagrams always match the current theme.
-function createDiagram(config) {
+// Builds the board+arrows DOM for a diagram — shared by the small inline
+// version and the enlarged lightbox version, so they're always pixel-for-
+// pixel the same diagram, just at different sizes.
+function buildDiagramDom(config) {
   diagramIdCounter++;
   const markerId = 'diagArrow' + diagramIdCounter;
   const wrap = document.createElement('div');
@@ -2244,6 +3536,122 @@ function createDiagram(config) {
   }
   return wrap;
 }
+
+// The small inline diagram used in lesson cards — same as buildDiagramDom,
+// plus a tap-to-zoom affordance that opens the enlarged lightbox version.
+function createDiagram(config, captionText) {
+  const wrap = buildDiagramDom(config);
+  wrap.classList.add('zoomable');
+  const badge = document.createElement('span');
+  badge.className = 'diagram-zoom-badge';
+  badge.textContent = '🔍';
+  wrap.appendChild(badge);
+  wrap.addEventListener('click', () => openDiagramLightbox(config, captionText || ''));
+  return wrap;
+}
+
+// The viewport is normally locked (no pinch/double-tap zoom) so the board
+// feels like a native app during play. We deliberately unlock it only while
+// the diagram lightbox is open, so people can pinch in on fine details
+// without that risking accidental zoom during a live game.
+function setZoomEnabled(enabled) {
+  const viewport = document.querySelector('meta[name="viewport"]');
+  if (!viewport) return;
+  viewport.setAttribute('content', enabled
+    ? 'width=device-width, initial-scale=1, viewport-fit=cover'
+    : 'width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover');
+}
+
+// Custom pinch/pan/zoom for the diagram lightbox, driven entirely by Pointer
+// Events rather than the browser's native page-zoom. This matters because
+// the viewport-meta-tag trick above only works on mobile Safari/Chrome —
+// Windows touchscreens (and desktop touch generally) treat pinch as an
+// OS/browser-level page-zoom gesture that a page's viewport tag doesn't
+// control, so relying on it alone leaves pinch silently doing nothing there.
+// Implementing zoom ourselves works identically on every platform.
+const lightboxZoom = { scale: 1, x: 0, y: 0, pointers: new Map(), startDist: 0, startScale: 1, panStart: null };
+const ZOOM_MIN = 1, ZOOM_MAX = 4;
+
+function applyLightboxTransform() {
+  const target = document.getElementById('diagramLightboxContent');
+  target.style.transform = 'translate(' + lightboxZoom.x + 'px, ' + lightboxZoom.y + 'px) scale(' + lightboxZoom.scale + ')';
+  target.style.cursor = lightboxZoom.scale > 1 ? 'grab' : 'default';
+}
+function resetLightboxZoom() {
+  lightboxZoom.scale = 1; lightboxZoom.x = 0; lightboxZoom.y = 0;
+  applyLightboxTransform();
+}
+function setLightboxZoom(newScale, anchorClientX, anchorClientY) {
+  newScale = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, newScale));
+  if (newScale === ZOOM_MIN) { lightboxZoom.x = 0; lightboxZoom.y = 0; }
+  lightboxZoom.scale = newScale;
+  applyLightboxTransform();
+}
+
+const zoomArea = document.getElementById('diagramLightboxZoomArea');
+function pointerDist(pts) { return Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y); }
+zoomArea.addEventListener('pointerdown', (e) => {
+  try { zoomArea.setPointerCapture(e.pointerId); } catch (err) {}
+  lightboxZoom.pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  if (lightboxZoom.pointers.size === 2) {
+    const pts = Array.from(lightboxZoom.pointers.values());
+    lightboxZoom.startDist = pointerDist(pts) || 1;
+    lightboxZoom.startScale = lightboxZoom.scale;
+    lightboxZoom.panStart = null;
+  } else if (lightboxZoom.pointers.size === 1) {
+    lightboxZoom.panStart = { x: e.clientX - lightboxZoom.x, y: e.clientY - lightboxZoom.y };
+  }
+});
+zoomArea.addEventListener('pointermove', (e) => {
+  if (!lightboxZoom.pointers.has(e.pointerId)) return;
+  lightboxZoom.pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  if (lightboxZoom.pointers.size === 2) {
+    const pts = Array.from(lightboxZoom.pointers.values());
+    const dist = pointerDist(pts) || 1;
+    lightboxZoom.scale = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, lightboxZoom.startScale * (dist / lightboxZoom.startDist)));
+    applyLightboxTransform();
+  } else if (lightboxZoom.pointers.size === 1 && lightboxZoom.panStart && lightboxZoom.scale > 1) {
+    lightboxZoom.x = e.clientX - lightboxZoom.panStart.x;
+    lightboxZoom.y = e.clientY - lightboxZoom.panStart.y;
+    applyLightboxTransform();
+  }
+});
+function releasePointer(e) {
+  lightboxZoom.pointers.delete(e.pointerId);
+  if (lightboxZoom.pointers.size < 2) lightboxZoom.startDist = 0;
+  if (lightboxZoom.pointers.size === 0) lightboxZoom.panStart = null;
+  if (lightboxZoom.scale < ZOOM_MIN + 0.02) resetLightboxZoom();
+}
+zoomArea.addEventListener('pointerup', releasePointer);
+zoomArea.addEventListener('pointercancel', releasePointer);
+zoomArea.addEventListener('dblclick', () => setLightboxZoom(lightboxZoom.scale > 1 ? 1 : 2));
+document.getElementById('diagramZoomInBtn').addEventListener('click', () => setLightboxZoom(lightboxZoom.scale + 0.6));
+document.getElementById('diagramZoomOutBtn').addEventListener('click', () => setLightboxZoom(lightboxZoom.scale - 0.6));
+document.getElementById('diagramZoomResetBtn').addEventListener('click', resetLightboxZoom);
+
+function openDiagramLightbox(config, captionText) {
+  const content = document.getElementById('diagramLightboxContent');
+  content.innerHTML = '';
+  const bigWrap = document.createElement('div');
+  bigWrap.className = 'diagram-lightbox-board-wrap';
+  bigWrap.appendChild(buildDiagramDom(config));
+  content.appendChild(bigWrap);
+  document.getElementById('diagramLightboxCaption').textContent = captionText || '';
+  resetLightboxZoom();
+  document.getElementById('diagramLightbox').classList.add('open');
+  setZoomEnabled(true);
+}
+function closeDiagramLightbox() {
+  document.getElementById('diagramLightbox').classList.remove('open');
+  setZoomEnabled(false);
+}
+document.getElementById('diagramLightboxClose').addEventListener('click', closeDiagramLightbox);
+document.getElementById('diagramLightbox').addEventListener('click', (e) => {
+  if (e.target.id === 'diagramLightbox') closeDiagramLightbox();
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && document.getElementById('diagramLightbox').classList.contains('open')) closeDiagramLightbox();
+});
 
 /* ---------- Piece Moves lesson data ---------- */
 const PIECE_LESSONS = [
@@ -2329,6 +3737,16 @@ const PIECE_LESSONS = [
 
 /* ---------- Tactics lesson data ---------- */
 const TACTIC_LESSONS = [
+  {
+    name: 'How to Calculate: Checks, Captures, Threats', badge: 'Calculation method',
+    text: "Before playing any move, run through a quick three-part scan — <strong>Checks</strong>: can either side check the king? <strong>Captures</strong>: can either side capture something, and is anything hanging? <strong>Threats</strong>: what does this move threaten, and what is the opponent threatening right now? Strong players do this scan almost automatically, on nearly every move — it's exactly why they rarely walk into a one-move tactic.",
+    diagram: (() => {
+      const pieces = [P_('g1', 'K', 'w'), P_('e1', 'R', 'w'), P_('g8', 'K', 'b'), P_('e5', 'N', 'b')];
+      return { pieces, arrows: [arrowSq('e1', 'e5')] };
+    })(),
+    caption: "A capture scan finds this instantly: the rook on e1 has a clear line to the undefended knight on e5.",
+    spot: "Make the scan a habit, in this order, on every single move — even ones that feel obvious. The habit costs a few seconds and prevents the vast majority of one-move blunders.",
+  },
   {
     name: 'Fork', badge: 'Attacking idea',
     text: "A <strong>fork</strong> is a single move that attacks two or more enemy pieces at the same time. The defender can only deal with one threat, so the other piece is lost. Knights are the most notorious forking piece — their unusual L-shaped move can reach two far-apart targets that no other piece could connect in one move.",
@@ -2418,7 +3836,7 @@ function renderPieceMovesLesson() {
     lesson.diagrams.forEach(d => {
       const block = document.createElement('div');
       block.className = 'diagram-block';
-      block.appendChild(createDiagram(d));
+      block.appendChild(createDiagram(d, d.caption));
       const cap = document.createElement('div'); cap.className = 'diagram-caption'; cap.textContent = d.caption;
       block.appendChild(cap);
       if (d.note) { const n = document.createElement('div'); n.className = 'diagram-note'; n.textContent = d.note; block.appendChild(n); }
@@ -2452,7 +3870,7 @@ function renderTacticsLesson() {
     card.appendChild(text);
     const diagWrap = document.createElement('div'); diagWrap.className = 'lesson-diagrams';
     const block = document.createElement('div'); block.className = 'diagram-block';
-    block.appendChild(createDiagram(lesson.diagram));
+    block.appendChild(createDiagram(lesson.diagram, lesson.caption));
     const cap = document.createElement('div'); cap.className = 'diagram-caption'; cap.textContent = lesson.caption;
     block.appendChild(cap);
     diagWrap.appendChild(block);
@@ -2464,16 +3882,131 @@ function renderTacticsLesson() {
   });
 }
 
+/* ---------- Endgames lesson data ---------- */
+function squareOfPawnCells() {
+  // Pawn on e5 needs 3 ranks to promote — the "square" spans files e-h, ranks 5-8.
+  const cells = [];
+  for (let r = 0; r <= 3; r++) for (let c = 4; c <= 7; c++) cells.push({ r, c, capture: false });
+  return cells;
+}
+const ENDGAME_LESSONS = [
+  {
+    name: 'The Square of the Pawn', badge: 'King & pawn endings',
+    text: "A fast way to tell whether a lone king can catch an enemy pawn: draw a square from the pawn to its promotion square, using the pawn's file and rank as one side. If the defending king can step inside that square on its move, it catches the pawn. If not, the pawn queens no matter what the king does.",
+    diagrams: [
+      { pieces: [P_('e5', 'P', 'w'), P_('a8', 'K', 'b'), P_('a1', 'K', 'w')], targets: squareOfPawnCells(), caption: 'Outside the square', note: "Black's king is outside the marked square — the pawn queens no matter what." },
+      { pieces: [P_('e5', 'P', 'w'), P_('g7', 'K', 'b'), P_('a1', 'K', 'w')], targets: squareOfPawnCells(), caption: 'Inside the square', note: "From here, Black's king is inside the square and can race back to catch the pawn." },
+    ],
+    tips: [
+      "Count ranks, not distance in a straight line — a pawn on its second rank effectively has a bigger square, since it can still move two squares.",
+      "This trick works instantly, without calculating a single line — invaluable when you're low on time.",
+    ],
+  },
+  {
+    name: 'Opposition', badge: 'King & pawn endings',
+    text: "Two kings are in direct opposition when they face each other with exactly one square between them. Whoever is NOT forced to move \"has the opposition\" — a real advantage, because the other king must give way, often letting the opposing king (and pawn) advance.",
+    diagrams: [
+      { pieces: [P_('e6', 'K', 'w'), P_('e5', 'P', 'w'), P_('e8', 'K', 'b')], caption: 'Direct opposition', note: 'With Black to move, the king must step aside — White\'s king and pawn can then advance.' },
+    ],
+    tips: [
+      "Opposition is the single most important idea in king-and-pawn endgames — most of them are decided by who has it.",
+      "You can win the opposition several moves in advance by counting squares — an odd number of empty squares between the kings, with your opponent to move, hands it to you.",
+    ],
+  },
+  {
+    name: 'Key Squares', badge: 'King & pawn endings',
+    text: "For any pawn, there are specific squares where, if YOUR king reaches one of them, the pawn is guaranteed to queen — no matter what the defender does. For a pawn that hasn't crossed the halfway line, the key squares are the three squares directly two ranks ahead of it.",
+    diagrams: [
+      { pieces: [P_('e4', 'P', 'w'), P_('d5', 'K', 'w'), P_('e8', 'K', 'b')], targets: [{ r: 2, c: 3, capture: false }, { r: 2, c: 4, capture: false }, { r: 2, c: 5, capture: false }], caption: 'Key squares for the e4 pawn', note: 'd6, e6, and f6 — get the white king to any one of these, and the pawn queens by force.' },
+    ],
+    tips: [
+      "Memorizing key squares turns a complicated-looking endgame into a simple race for one specific square.",
+      "As a pawn advances, its key squares move with it — always two ranks ahead, one file to each side plus the pawn's own file.",
+    ],
+  },
+  {
+    name: 'The Lucena Position', badge: 'Rook endings',
+    text: "The most important winning technique in rook endgames. With a rook and pawn against a lone rook, if the stronger side's king reaches in front of its own pawn, the win is achieved by \"building a bridge\": the rook shields the king from checks along a rank, letting the pawn promote safely.",
+    diagrams: [
+      { pieces: [P_('f7', 'K', 'w'), P_('e7', 'P', 'w'), P_('b2', 'R', 'w'), P_('h7', 'K', 'b'), P_('a3', 'R', 'b')], arrows: [arrowSq('b2', 'e2')], caption: 'A Lucena position', note: "White's rook swings to the 4th rank, then the e-file, to block checks and escort the pawn home." },
+    ],
+    tips: [
+      "You must know this position cold — reaching a winning rook endgame and then not knowing how to convert it is one of the most common ways club players throw away a full point.",
+      "The technique works the same way on any file except the rook's own file (a and h pawns are a well-known exception).",
+    ],
+  },
+  {
+    name: 'The Philidor Position', badge: 'Rook endings',
+    text: 'The essential DEFENSIVE technique in rook endgames — the mirror image of Lucena. If you\'re defending a rook down a pawn, keep your king in front of the enemy pawn and your rook on the third rank (from your own side) to prevent the enemy king from ever crossing it. The result is a draw.',
+    diagrams: [
+      { pieces: [P_('e5', 'K', 'w'), P_('e4', 'P', 'w'), P_('h1', 'R', 'w'), P_('e8', 'K', 'b'), P_('a6', 'R', 'b')], caption: 'A Philidor position', note: "Black's rook on the 6th rank stops White's king from ever advancing past it — a clean draw." },
+    ],
+    tips: [
+      "The moment the attacking pawn advances to the 6th rank, switch plans: drop your rook behind the pawn and start checking the enemy king from behind instead.",
+      "Philidor is why being a pawn down in a rook endgame is so often survivable — the technique is simple once you know it.",
+    ],
+  },
+  {
+    name: 'Basic Checkmates', badge: 'Fundamentals',
+    text: "Before anything else, every player needs the two most basic mating techniques on lock: king and queen versus a lone king, and king and rook versus a lone king. Both rely on the same idea — use your king to box the enemy king toward an edge, then deliver mate with your queen or rook while your own king cuts off the escape.",
+    diagrams: [
+      { pieces: [P_('a8', 'K', 'b'), P_('b6', 'K', 'w'), P_('a7', 'Q', 'w')], caption: 'King & Queen vs King', note: "Checkmate — the queen delivers check a knight's-move from the corner, with the king covering the rest, avoiding stalemate." },
+      { pieces: [P_('a8', 'K', 'b'), P_('c7', 'K', 'w'), P_('a5', 'R', 'w')], caption: 'King & Rook vs King', note: 'Checkmate — the rook seals off the entire file while the king takes away the two remaining escape squares.' },
+    ],
+    tips: [
+      "With king and queen, keep the queen a knight's-move away from the enemy king while boxing it in — moving too close causes stalemate, the single most common mistake with this mate.",
+      "With king and rook, the technique is to shrink the enemy king's box one rank or file at a time, bringing your own king up to help only when the enemy king can't shrink the box further on its own.",
+    ],
+  },
+];
+
+function renderEndgamesLesson() {
+  const container = document.getElementById('endgamesContent');
+  const intro = document.createElement('div');
+  intro.className = 'lesson-intro';
+  intro.innerHTML = '<h1>Endgames</h1><p>Openings and tactics get most of the attention, but endgames decide more games than either — and a compact set of patterns covers most of what comes up in practice. These are the ones worth knowing cold.</p>';
+  container.appendChild(intro);
+  ENDGAME_LESSONS.forEach(lesson => {
+    const card = document.createElement('div');
+    card.className = 'lesson-card';
+    const badge = document.createElement('div'); badge.className = 'lesson-badge'; badge.textContent = lesson.badge;
+    card.appendChild(badge);
+    const h2 = document.createElement('h2'); h2.textContent = lesson.name;
+    card.appendChild(h2);
+    const text = document.createElement('p'); text.className = 'lesson-text'; text.innerHTML = lesson.text;
+    card.appendChild(text);
+    const diagWrap = document.createElement('div'); diagWrap.className = 'lesson-diagrams';
+    lesson.diagrams.forEach(d => {
+      const block = document.createElement('div'); block.className = 'diagram-block';
+      block.appendChild(createDiagram(d, d.caption));
+      const cap = document.createElement('div'); cap.className = 'diagram-caption'; cap.textContent = d.caption;
+      block.appendChild(cap);
+      if (d.note) { const n = document.createElement('div'); n.className = 'diagram-note'; n.textContent = d.note; block.appendChild(n); }
+      diagWrap.appendChild(block);
+    });
+    card.appendChild(diagWrap);
+    if (lesson.tips && lesson.tips.length) {
+      const tips = document.createElement('ul');
+      tips.className = 'lesson-tips';
+      lesson.tips.forEach(t => { const li = document.createElement('li'); li.textContent = t; tips.appendChild(li); });
+      card.appendChild(tips);
+    }
+    container.appendChild(card);
+  });
+}
+
 /* ---------- Navigation ---------- */
 document.getElementById('mainNav').addEventListener('click', (e) => {
   const btn = e.target.closest('.nav-btn');
   if (!btn) return;
-  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById('screen-' + btn.dataset.screen).classList.add('active');
-  window.scrollTo(0, 0);
+  showScreen(btn.dataset.screen);
 });
+function showScreen(name) {
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.toggle('active', b.dataset.screen === name));
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('active');
+  window.scrollTo(0, 0);
+}
 
 /* ---------- Init ---------- */
 function init() {
@@ -2492,10 +4025,13 @@ function init() {
 
   renderProfile();
   renderGameLog();
+  renderPracticeSummary();
+  renderWeaknessDashboard();
   updateOrientationLabels();
   startNewGame();
   renderPieceMovesLesson();
   renderTacticsLesson();
+  renderEndgamesLesson();
 }
 init();
 
